@@ -10,6 +10,7 @@ The final project for fall 2024 cmpm-121.
 ## Tools and Materials
 - For our platform, we intend on using default HTML canvas rendering. Our initial idea is to use an ascii-art style, so complex graphic capabilities are not at all necessary. We will be using Vite for compiling and packaging, and 
 - We plan to use Typescript as both our primary and alternative language. This will allow us to maintain strict type checking as well as syntactical structure throughout the change halfway through the project. We'll likely be using JSON to store premade data structures, as well as utilizing it for localstorage reading and writing.
+- We plan to use VS Code as our IDE. This will allow for easy setup and integration of tools.
 - We will use git as our source control system and host our repository on Github. This will allow us to colaborate and manage our changes.
 - Our Alternate platform is the Phaser.js framework. We will remain in Typescript, but switch to the scene-based Phaser engine for drawing and rendering our game. We chose this alternate engine due to our shared experience and familiarity with the platform, and the fact that we won't need to change any of our logic or data storage code, only our display, input, and scene code.
 ## Outlook
