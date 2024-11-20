@@ -81,15 +81,38 @@ export default class Board {
 		return retStr;
 	}
 
-    /**
-     * 
-     * @param cell The [row, col] position at which to get Tile data.
-     * @returns the Tile data for that position.
-     */
+	/**
+	 *
+	 * @param cell The [row, col] position at which to get Tile data.
+	 * @returns the Tile data for that position.
+	 */
 	public GetTile(cell: Cell): Tile | null {
 		if (cell.row >= this.rows || cell.row < 0 || cell.col >= this.cols || cell.col < 0) {
 			return null;
 		}
 		return this.board[cell.row][cell.col];
+	}
+
+	/**
+	 *
+	 * @param cell The [row, col] position at which to get adjacency data.
+	 * @returns a list of names of the plants adjacent to a given tile, excluding the given tile or tiles without plants. If no adjacent tiles have plants, returns null.
+	 */
+	public GetAdjacencyList(cell: Cell): string[] | null {
+		const retVal: string[] = [];
+		for (let c = cell.col - 1; c < cell.col + 1; c++) {
+			for (let r = cell.row - 1; r < cell.row + 1; r++) {
+				if (c < 0 || r < 0 || c >= this.cols || r >= this.rows || c == cell.col || r == cell.row) {
+					continue;
+				} else {
+					const tmp = this.GetTile({ col: c, row: r });
+					if (tmp && tmp.plant) {
+						retVal.push(tmp.plant.name);
+					}
+				}
+			}
+		}
+
+		return retVal.length > 0 ? retVal : null;
 	}
 }
