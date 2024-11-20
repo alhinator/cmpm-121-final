@@ -68,7 +68,7 @@ export default class Plant {
 		return PLANTS[this.name].displayCharacter[this.growth];
 	}
 	/**
-	 * The growth stage at which this plant has reached maturity.
+	 * The growth stage at which this plant has reached maturity. Equal to the largest index - NOT the length - of the displayCharacters array.
 	 */
 	public get growthCap(): number {
 		return PLANTS[this.name].growthCap;
