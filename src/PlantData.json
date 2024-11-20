@@ -24,7 +24,7 @@
 		"plantName": "Rice",
 		"growthRate": 0.15,
 		"growthCap": 5,
-		"displayCharacters": [",","r", "|", "F", "R"],
+		"displayCharacters": [",","r", "|", "T", "F", "R"],
 		"adjacencyFriends": ["Rice"]
 	}
 }
