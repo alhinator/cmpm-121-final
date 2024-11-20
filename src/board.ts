@@ -74,17 +74,22 @@ export default class Board {
 		let retStr = "";
 		for (let i = 0; i < this.rows; i++) {
 			for (let j = 0; j < this.cols; j++) {
-				retStr += this.board[i][j].plant ? this.board[i][j].plant?.displayCharacters[this.board[i][j].plant!.growth] : MT_TILE;
+				retStr += this.board[i][j].plant ? this.board[i][j].plant!.displayCharacter : MT_TILE;
 			}
 			retStr += "\n";
 		}
 		return retStr;
 	}
 
-	public GetTile(_c: Cell): Tile | null {
-		if (_c.row >= this.rows || _c.row < 0 || _c.col >= this.cols || _c.col < 0) {
+    /**
+     * 
+     * @param cell The [row, col] position at which to get Tile data.
+     * @returns the Tile data for that position.
+     */
+	public GetTile(cell: Cell): Tile | null {
+		if (cell.row >= this.rows || cell.row < 0 || cell.col >= this.cols || cell.col < 0) {
 			return null;
 		}
-		return this.board[_c.row][_c.col];
+		return this.board[cell.row][cell.col];
 	}
 }
