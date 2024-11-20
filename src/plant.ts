@@ -16,7 +16,7 @@ const GLOBAL_FRIEND_RATE = 0.05;
  */
 export default class Plant {
 	/**
-	 * @
+	 * The reference to the gameplay board. Must be set by calling Plant.SetBoard() before creating any plants.
 	 */
 	private static boardRef: Board;
 	/**

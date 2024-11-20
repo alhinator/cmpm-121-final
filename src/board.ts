@@ -47,7 +47,7 @@ export default class Board {
 	public readonly cols: number;
 	public readonly rows: number;
 	private board: Tile[][];
-	private sunPosition: number = 0;
+	private sunPosition: number = -1;
 
 	/**
 	 * @constructor Initialize an empty board.
@@ -70,13 +70,9 @@ export default class Board {
 				});
 			}
 		}
-		this.initBoard();
 	}
-	private initBoard() {
-		//DETERMINE INITIAL BOARD SUNLIGHT LEVELS
-		this.MoveSun();
-		this.UpdateSunTiles();
-	}
+
+	// -------- Public class operations --------
 	/**
 	 *
 	 * @returns A paragraph-formatted string with the current displayable character of each tile on the grid.
@@ -91,7 +87,23 @@ export default class Board {
 		}
 		return retStr;
 	}
+	/**
+	 * Causes the board to move forward one game tick: Moves the sun, hydrates tiles, and gives plants the chance to grow.
+	 */
+	public Tick() {
+		this.MoveSun();
+		this.UpdateSunTiles();
+		this.Hydrate();
+		this.Grow();
+	}
+	/**
+	 * @returns The current columnal position of the sun, between 0 and this Board's cols.
+	 */
+	public get Sun():number{
+		return this.sunPosition;
+	}
 
+	// -------- Public single-tile operations --------
 	/**
 	 *
 	 * @param cell The [row, col] position at which to get Tile data.
@@ -105,8 +117,52 @@ export default class Board {
 	}
 	/**
 	 *
+	 * Converts the specified [row, col] position to a water tile, destroying the plant in that tile if it is there.
+	 * @param cell The [row, col] position to turn into a water source.
+	 * @returns The success state of the operation.
+	 */
+	public Irrigate(cell: Cell): boolean {
+		const tmp = this.GetTile(cell);
+		if (tmp && tmp.content != TILETYPE.WATER) {
+			tmp.content = TILETYPE.WATER;
+			tmp.plant = null;
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * Removes any water or plants from the specified [row, col] position, turning it into an empty tile.
+	 * @param cell The [row, col] position to till.
+	 * @returns The success state of the operation.
+	 */
+	public Till(cell: Cell): boolean {
+		const tmp = this.GetTile(cell);
+		if (tmp && tmp.content != TILETYPE.EMPTY) {
+			tmp.content = TILETYPE.EMPTY;
+			tmp.plant = null;
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * Attempts to plant a seed in the specified [row, col] position. Fails if the specified tile is a Water tile or already has a plant there.
+	 * @param cell The [row, col] position to attempt to plant in.
+	 * @param name The name of the plant as specified in the PlantData.json file.
+	 * @returns The success state of the operation.
+	 */
+	public Sow(cell: Cell, name: string) {
+		const tmp = this.GetTile(cell);
+		if (tmp && tmp.content == TILETYPE.EMPTY) {
+			tmp.content = TILETYPE.PLANT;
+			tmp.plant = new Plant(name, cell);
+			return true;
+		}
+		return false;
+	}
+	/**
+	 *
 	 * @param cell The [row, col] position at which to get adjacency data.
-	 * @returns a list of Tiles that are adjacent to the specified position.
+	 * @returns An array of Tiles that are adjacent to the specified [row, col] position.
 	 */
 	public GetAdjacentTiles(cell: Cell): Tile[] {
 		const retVal: Tile[] = [];
@@ -127,7 +183,7 @@ export default class Board {
 	/**
 	 *
 	 * @param cell The [row, col] position at which to get adjacency data.
-	 * @returns a list of names of the plants adjacent to a given tile, excluding the given tile or tiles without plants. If no adjacent tiles have plants, returns null.
+	 * @returns A string array of names of the plants adjacent to a given [row, col] position, excluding the given tile or tiles without plants. If no adjacent tiles have plants, returns null.
 	 */
 	public GetAdjacentPlants(cell: Cell): string[] | null {
 		const retVal: string[] = [];
@@ -139,6 +195,8 @@ export default class Board {
 		});
 		return retVal.length > 0 ? retVal : null;
 	}
+
+	// -------- Private helper funcions --------
 	/**
 	 * Moves the sun from right to left over the board.
 	 */
@@ -162,7 +220,7 @@ export default class Board {
 		}
 	}
 	/**
-	 * Hydrates tiles next to water sources.
+	 * Hydrates tiles next to water sources. Increases hydration by 1 + Random(0, 1]. Hydration per tile is capped at MAX_HYDRATION.
 	 */
 	private Hydrate() {
 		const waterTiles: Tile[] = [];
@@ -183,20 +241,14 @@ export default class Board {
 			});
 		});
 	}
+	/**
+	 * Tells all plants to attempt a growth state via their tick methods.
+	 */
 	private Grow() {
 		this.board.forEach((row) => {
 			row.forEach((tile) => {
 				tile.plant?.tick();
 			});
 		});
-	}
-	/**
-	 * Causes the board to move forward one game tick: Moves the sun, hydrates tiles, and gives plants the chance to grow.
-	 */
-	public Tick() {
-		this.MoveSun();
-		this.UpdateSunTiles();
-		this.Hydrate();
-		this.Grow();
 	}
 }
