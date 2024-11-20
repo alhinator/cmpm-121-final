@@ -85,7 +85,7 @@ export default class Plant {
 	 */
 	private get rateViaAdjacency(): number {
 		//TODO: IMPLEMENT ADJACENCY GETTERS
-		const list = Plant.boardRef.GetAdjacencyList(this.position);
+		const list = Plant.boardRef.GetAdjacentPlants(this.position);
 		if (!list) {
 			return 1;
 		}
@@ -107,6 +107,7 @@ export default class Plant {
 		const currRate = this.baseGrowthRate * tile.sun * tile.water * this.rateViaAdjacency;
 		if (this.growth < this.growthCap && Math.random() < currRate) {
 			this.currentGrowth++;
+			tile.water -= 1;
 		}
 	}
 }
