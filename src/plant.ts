@@ -1,19 +1,19 @@
 export default class Plant {
-	plantName: String;
-
+	plantName: string;
+    displayCharacters:string[];
 	growthSpeed: number;
 	growth: number = 0;
 	growthCap: number;
 
-	watered: boolean;
 	constructor(plantData: string) {
 		const data = JSON.parse(plantData);
-		if (!data.plantName || !data.growthSpeed || !data.growthCap) {
+		if (!data.plantName || !data.growthSpeed || !data.growthCap || !data.displayCharacters) {
 			throw new Error("Plant: Constructor: Bad JSON data.");
 		}
+
 		this.plantName = data.plantName;
 		this.growthSpeed = data.growthSpeed;
 		this.growthCap = data.growthCap;
-		this.watered = false;
+        this.displayCharacters = data.displayCharacters;
 	}
 }
