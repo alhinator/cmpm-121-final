@@ -8,6 +8,10 @@ export enum TILETYPE {
 	PLANT,
 	WATER,
 }
+/**
+ * @constant MT_TILE is the default character to be used when a tile contains no plant.
+ */
+const MT_TILE = "_";
 
 /**
  * @interface Cell is a [row, column] interface used to access positions on a board.
@@ -35,6 +39,12 @@ export default class Board {
 	public readonly cols: number;
 	public readonly rows: number;
 	private board: Tile[][];
+
+	/**
+	 * @constructor Initialize an empty board.
+	 * @param cols Width of the board to initialize to. Cannot be changed once set.
+	 * @param rows Height of the board to initialize to. Cannot be changed once set.
+	 */
 	constructor(cols: number, rows: number) {
 		this.cols = cols;
 		this.rows = rows;
@@ -56,11 +66,15 @@ export default class Board {
 	private initBoard() {
 		//DETERMINE INITIAL BOARD SUNLIGHT LEVELS
 	}
+	/**
+	 *
+	 * @returns A paragraph-formatted string with the current displayable character of each tile on the grid.
+	 */
 	public toString(): string {
 		let retStr = "";
 		for (let i = 0; i < this.rows; i++) {
 			for (let j = 0; j < this.cols; j++) {
-				retStr += this.board[i][j].plant?.displayCharacters[this.board[i][j].plant!.growth];
+				retStr += this.board[i][j].plant ? this.board[i][j].plant?.displayCharacters[this.board[i][j].plant!.growth] : MT_TILE;
 			}
 			retStr += "\n";
 		}
