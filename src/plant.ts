@@ -23,11 +23,11 @@ export default class Plant {
 	 * @function Sets the static class reference to a Board instance. MUST be called before creating any plants.
 	 */
 	public static SetBoard(board: Board) {
-		this.boardRef = board;
+		Plant.boardRef = board;
 	}
 
 	/**
-	 * @property The name of the plant.
+	 * @property The name of the plant as specified by PlantData.json.
 	 */
 	public readonly name: string;
 	private currentGrowth: number = 0;
@@ -48,6 +48,8 @@ export default class Plant {
 		this.name = name;
 		this.position = position;
 	}
+
+	// -------- Property Getters --------
 	/**
 	 * Get the base growth rate as defined in the JSON file.
 	 */
@@ -68,7 +70,7 @@ export default class Plant {
 		return PLANTS[this.name].displayCharacter[this.growth];
 	}
 	/**
-	 * The growth stage at which this plant has reached maturity. Equal to the largest index - NOT the length - of the displayCharacters array.
+	 * Get the growth stage at which this plant has reached maturity. Equal to the largest index - NOT the length - of the displayCharacters array.
 	 */
 	public get growthCap(): number {
 		return PLANTS[this.name].growthCap;
@@ -101,13 +103,16 @@ export default class Plant {
 
 	/**
 	 * This plant will attempt to grow one stage based on its base growth rate multiplied by the current sunlight, water, and friend adjacency conditions.
+	 * Consumes 0.5 water from its tile on a failed growth, and 1 water on a successful growth.
 	 */
 	public tick() {
 		const tile = Plant.boardRef.GetTile(this.position)!;
 		const currRate = this.baseGrowthRate * tile.sun * tile.water * this.rateViaAdjacency;
+		let waterUse = 0.5;
 		if (this.growth < this.growthCap && Math.random() < currRate) {
 			this.currentGrowth++;
-			tile.water -= 1;
+			waterUse = 1;
 		}
+		Plant.boardRef.Dehydrate(tile.cell, waterUse);
 	}
 }

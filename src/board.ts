@@ -99,7 +99,7 @@ export default class Board {
 	/**
 	 * @returns The current columnal position of the sun, between 0 and this Board's cols.
 	 */
-	public get Sun():number{
+	public get Sun(): number {
 		return this.sunPosition;
 	}
 
@@ -129,6 +129,16 @@ export default class Board {
 			return true;
 		}
 		return false;
+	}
+	/**
+	 * Removes an amount of water from the specified [row, col] position's tile.
+	 * @param cell The [row, col] position to remove water from.
+	 */
+	public Dehydrate(cell: Cell, amount: number) {
+		const tmp = this.GetTile(cell);
+		if (tmp) {
+			tmp.water > amount ? tmp.water -= amount : (tmp.water = 0);
+		}
 	}
 	/**
 	 * Removes any water or plants from the specified [row, col] position, turning it into an empty tile.
@@ -220,7 +230,7 @@ export default class Board {
 		}
 	}
 	/**
-	 * Hydrates tiles next to water sources. Increases hydration by 1 + Random(0, 1]. Hydration per tile is capped at MAX_HYDRATION.
+	 * Hydrates tiles next to water sources. Increases their hydration by 1 + Random(0, 1]. Hydration per tile is capped at MAX_HYDRATION.
 	 */
 	private Hydrate() {
 		const waterTiles: Tile[] = [];
@@ -242,7 +252,7 @@ export default class Board {
 		});
 	}
 	/**
-	 * Tells all plants to attempt a growth state via their tick methods.
+	 * Tells all plants to attempt to grow via their tick methods.
 	 */
 	private Grow() {
 		this.board.forEach((row) => {
