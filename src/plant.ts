@@ -1,4 +1,4 @@
-import PlantData from "../src/PlantData.json";
+import PlantData from "../data/PlantData.json";
 import Board, { Cell } from "./board.ts";
 
 /**
