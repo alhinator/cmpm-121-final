@@ -81,6 +81,12 @@ export default class Plant {
 	public get adjacencyFriends(): string[] {
 		return PLANTS[this.name].adjacencyFriends;
 	}
+	/**
+	 * Get a string array of the rewards granted when this plant is reaped at max growth.
+	 */
+	public get reward(): string[] {
+		return PLANTS[this.name].reward;
+	}
 
 	/**
 	 * Using the current state of the board, get a rate (Default: 1, Max: 1 + 8*GLOBAL_FRIEND_RATE) to increase the growth rate of this plant based on how many "friend plants" are planted next to it.

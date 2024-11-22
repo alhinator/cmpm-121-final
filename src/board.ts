@@ -212,6 +212,21 @@ export default class Board {
 		return false;
 	}
 	/**
+	 * If the specified [row, col] position has a fully grown plant, removes it.
+	 * @param cell The [row, col] position to attempt a reap.
+	 * @returns If a plant was reaped, returns the reward. If no plant was reaped, returns false.
+	 */
+	public Reap(cell:Cell):string[] | false{
+		const tmp = this.GetTile(cell);
+		if(tmp && tmp.plant && tmp.plant.growth == tmp.plant.growthCap){
+			let retVal = tmp.plant.reward
+			this.Till(cell);
+			return retVal;
+		} else {
+			return false;
+		}
+	}
+	/**
 	 * Attempts to plant a seed in the specified [row, col] position. Fails if the specified tile is a Water tile or already has a plant there.
 	 * @param cell The [row, col] position to attempt to plant in.
 	 * @param name The name of the plant as specified in the PlantData.json file.
@@ -233,8 +248,8 @@ export default class Board {
 	 */
 	public GetAdjacentTiles(cell: Cell): Tile[] {
 		const retVal: Tile[] = [];
-		for (let c = cell.col - 1; c < cell.col + 1; c++) {
-			for (let r = cell.row - 1; r < cell.row + 1; r++) {
+		for (let c = cell.col - 1; c <= cell.col + 1; c++) {
+			for (let r = cell.row - 1; r <= cell.row + 1; r++) {
 				if (c < 0 || r < 0 || c >= this.cols || r >= this.rows || (c == cell.col && r == cell.row)) {
 					continue;
 				} else {
