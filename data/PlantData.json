@@ -4,27 +4,31 @@
 		"growthRate": 0,
 		"growthCap": 0,
 		"displayCharacters": [],
-		"adjacencyFriends": []
+		"adjacencyFriends": [],
+		"reward": []
 	},
 	"Wheat": {
 		"plantName": "Wheat",
 		"growthRate": 0.1,
 		"growthCap": 4,
 		"displayCharacters": [".", ",", "v", "w", "W"],
-		"adjacencyFriends": ["Wheat", "Corn"]
+		"adjacencyFriends": ["Wheat", "Corn"],
+		"reward": ["Wheat", "WheatSeed", "WheatSeed"]
 	},
 	"Corn": {
 		"plantName": "Corn",
 		"growthRate": 0.075,
 		"growthCap": 3,
 		"displayCharacters": [".", ",", "c", "C"],
-		"adjacencyFriends": ["Wheat"]
+		"adjacencyFriends": ["Wheat"],
+		"reward": ["Corn", "Corn", "CornSeed"]
 	},
 	"Rice": {
 		"plantName": "Rice",
 		"growthRate": 0.15,
 		"growthCap": 5,
-		"displayCharacters": [",","r", "|", "T", "F", "R"],
-		"adjacencyFriends": ["Rice"]
+		"displayCharacters": [",", "r", "|", "T", "F", "R"],
+		"adjacencyFriends": ["Rice"],
+		"reward": ["Rice", "Rice", "RiceSeed", "RiceSeed"]
 	}
 }
