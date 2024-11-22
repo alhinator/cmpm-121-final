@@ -63,7 +63,7 @@ export default class Player {
      * Draws the player avatar at the current position on the canvas.
      */
     public draw(): void {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear previous frame
+        //this.context.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear previous frame
         this.context.drawImage(Player.avatar!, this.x, this.y, TILE_SIZE, TILE_SIZE);
     }
 

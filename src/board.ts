@@ -21,6 +21,9 @@ const SUN_RANGE = 2;
  */
 const MAX_HYDRATION = 4;
 
+const DIRT_COLOR = [89, 52, 30];
+const WATER_COLOR = [0, 86, 204];
+
 /**
  * @interface Cell is a [row, column] interface used to access positions on a board.
  */
@@ -69,7 +72,18 @@ export default class Board {
 					plant: null,
 				});
 			}
+			this.board.push(tmp);
 		}
+
+		for (let y = 0; y < this.rows; y++) {
+			for (let x = 0; x < this.cols; x++) {
+				let tile = this.board[y][x];
+				if(Math.random() < 0.25) {
+					tile.content = TILETYPE.WATER;
+					tile.water = MAX_HYDRATION;
+				}
+			}
+        }
 	}
 
 	// -------- Public class operations --------
@@ -204,6 +218,58 @@ export default class Board {
 			}
 		});
 		return retVal.length > 0 ? retVal : null;
+	}
+
+	/**
+	 * Draws the board.
+	 * @param context The rendering context to draw the board to
+	 * @param tileSize The size of each tile
+	 */
+	public draw(context: CanvasRenderingContext2D, tileSize: number): void {
+		context.save(); // Save the current drawing state
+        context.strokeStyle = "#000000"; // Black color for grid lines
+        context.lineWidth = 1; // Thin but visible lines
+    
+		for (let y = 0; y < this.rows; y++) {
+			for (let x = 0; x < this.cols; x++) {
+				let tile = this.board[y][x];
+				let color: number[] = [0, 0, 0];
+				if(tile.content == TILETYPE.EMPTY) {
+					let tint_level = tile.water * 0.04;
+
+					color[0] = DIRT_COLOR[0] * (1 - tint_level) + WATER_COLOR[0] * tint_level;
+					color[1] = DIRT_COLOR[1] * (1 - tint_level) + WATER_COLOR[1] * tint_level;
+					color[2] = DIRT_COLOR[2] * (1 - tint_level) + WATER_COLOR[2] * tint_level;
+				} else {
+					color[0] = WATER_COLOR[0];
+					color[1] = WATER_COLOR[1];
+					color[2] = WATER_COLOR[2];
+				}
+				color[0] *= Math.max(0.5, tile.sun);
+				color[1] *= Math.max(0.5, tile.sun);
+				color[2] *= Math.max(0.5, tile.sun);
+				context.fillStyle = `rgb(${Math.floor(color[0])}, ${Math.floor(color[1])}, ${Math.floor(color[2])})`;
+				context.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+			}
+        }
+
+        // Draw vertical grid lines
+        for (let x = 0; x <= this.cols * tileSize; x += tileSize) {
+            context.beginPath();
+            context.moveTo(x, 0);
+            context.lineTo(x, this.rows * tileSize);
+            context.stroke();
+        }
+    
+        // Draw horizontal grid lines
+        for (let y = 0; y <= this.rows * tileSize; y += tileSize) {
+            context.beginPath();
+            context.moveTo(0, y);
+            context.lineTo(this.cols * tileSize, y);
+            context.stroke();
+        }
+    
+        context.restore(); // Restore the drawing state
 	}
 
 	// -------- Private helper funcions --------

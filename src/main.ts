@@ -1,3 +1,4 @@
+import Board from "./board.ts";
 import Player from "./player.ts";
 import Time from "./time.ts";
 
@@ -31,13 +32,10 @@ const main = () => {
     title.textContent = APP_NAME;
     app.appendChild(title);
 
-    // Initialize time module
-    Time.initialize(app);
-
     // Setup canvas
     const canvas = document.createElement("canvas");
-    canvas.width = TILE_SIZE * GRID_WIDTH;  // E.g., 32 * 25 = 800px
-    canvas.height = TILE_SIZE * GRID_HEIGHT; // E.g., 32 * 18 = 576px
+    canvas.width = GRID_WIDTH * TILE_SIZE;  // E.g., 32 * 25 = 800px
+    canvas.height = GRID_HEIGHT * TILE_SIZE; // E.g., 32 * 18 = 576px
     canvas.style.border = "1px solid black"; // Add a border for visibility during testing    
     app.appendChild(canvas);
     const context = canvas.getContext("2d")!;
@@ -73,14 +71,22 @@ const main = () => {
     Player.LoadAvatar();
 
     // Instantiate the player
+    const board = new Board(GRID_WIDTH, GRID_HEIGHT);
+
+    // Instantiate the player
     const player = new Player(canvas, 5, 5); // Starting at tile (5, 5)
+
+    // Initialize time module
+    Time.initialize(app, board);
 
     // Game loop
     const gameLoop = () => {
-        drawGrid(); // Always draw the grid first
-        player.draw(); // Draw the player sprite on top of the grid
+        // drawGrid(); // Always draw the grid first
+        context.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
+        board.draw(context, TILE_SIZE); // Draw the board
+        player.draw(); // Draw the player sprite on top of the board
         requestAnimationFrame(gameLoop); // Schedule the next frame
-    };    
+    };
 
     gameLoop();
 };
