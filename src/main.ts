@@ -40,33 +40,6 @@ const main = () => {
     app.appendChild(canvas);
     const context = canvas.getContext("2d")!;
 
-    // Draw the grid
-    const drawGrid = () => {
-        context.save(); // Save the current drawing state
-        context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas for fresh redraw
-        context.strokeStyle = "#000000"; // Black color for grid lines
-        context.lineWidth = 1; // Thin but visible lines
-    
-        // Draw vertical grid lines
-        for (let x = 0; x <= canvas.width; x += TILE_SIZE) {
-            context.beginPath();
-            context.moveTo(x, 0);
-            context.lineTo(x, canvas.height);
-            context.stroke();
-        }
-    
-        // Draw horizontal grid lines
-        for (let y = 0; y <= canvas.height; y += TILE_SIZE) {
-            context.beginPath();
-            context.moveTo(0, y);
-            context.lineTo(canvas.width, y);
-            context.stroke();
-        }
-    
-        context.restore(); // Restore the drawing state
-    };
-        
-
     // Load player avatar
     Player.LoadAvatar();
 
@@ -74,7 +47,7 @@ const main = () => {
     const board = new Board(GRID_WIDTH, GRID_HEIGHT);
 
     // Instantiate the player
-    const player = new Player(canvas, 5, 5); // Starting at tile (5, 5)
+    const player = new Player(canvas, TILE_SIZE, 5, 5); // Starting at tile (5, 5)
 
     // Initialize time module
     Time.initialize(app, board);
@@ -84,7 +57,7 @@ const main = () => {
         // drawGrid(); // Always draw the grid first
         context.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
         board.draw(context, TILE_SIZE); // Draw the board
-        player.draw(); // Draw the player sprite on top of the board
+        player.draw(context); // Draw the player sprite on top of the board
         requestAnimationFrame(gameLoop); // Schedule the next frame
     };
 

@@ -1,9 +1,4 @@
 /**
- * @constant DEFAULT_SPEED The default size of each movement in pixels (tile size).
- */
-const TILE_SIZE = 32;
-
-/**
  * @class Represents the player character in the game.
  */
 export default class Player {
@@ -11,7 +6,7 @@ export default class Player {
     private static avatar: HTMLImageElement | null = null;
 
     private readonly canvas: HTMLCanvasElement;
-    private readonly context: CanvasRenderingContext2D;
+    private readonly tileSize: number;
     private x: number;
     private y: number;
     private isMoving: boolean = false;
@@ -32,15 +27,14 @@ export default class Player {
      * @param initialY The starting Y-coordinate (in tiles) of the player.
      * @function Constructs a new Player instance and initializes its position.
      */
-    constructor(canvas: HTMLCanvasElement, initialX: number, initialY: number) {
+    constructor(canvas: HTMLCanvasElement, tileSize: number, initialX: number, initialY: number) {
         if (!Player.avatar) {
             throw new Error("Player: Avatar image not loaded. Call Player.LoadAvatar() first.");
         }
         this.canvas = canvas;
-        this.context = canvas.getContext("2d")!;
-        this.x = initialX * TILE_SIZE;
-        this.y = initialY * TILE_SIZE;
-
+        this.tileSize = tileSize;
+        this.x = initialX * tileSize;
+        this.y = initialY * tileSize;
         this.setupKeyboardListeners();
     }
 
@@ -62,9 +56,9 @@ export default class Player {
     /**
      * Draws the player avatar at the current position on the canvas.
      */
-    public draw(): void {
+    public draw(context: CanvasRenderingContext2D): void {
         //this.context.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear previous frame
-        this.context.drawImage(Player.avatar!, this.x, this.y, TILE_SIZE, TILE_SIZE);
+        context.drawImage(Player.avatar!, this.x, this.y, this.tileSize, this.tileSize);
     }
 
     /**
@@ -73,8 +67,8 @@ export default class Player {
      * @param deltaY The number of tiles to move in the Y direction.
      */
     private move(deltaX: number, deltaY: number): void {
-        const newX = this.x + deltaX * TILE_SIZE;
-        const newY = this.y + deltaY * TILE_SIZE;
+        const newX = this.x + deltaX * this.tileSize;
+        const newY = this.y + deltaY * this.tileSize;
 
         // Constrain movement to the canvas bounds
         if (newX >= 0 && newX < this.canvas.width && newY >= 0 && newY < this.canvas.height) {
