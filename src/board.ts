@@ -236,8 +236,8 @@ export default class Board {
 	 */
 	public GetAdjacentTiles(cell: Cell): Tile[] {
 		const retVal: Tile[] = [];
-		for (let c = cell.col - 1; c < cell.col + 1; c++) {
-			for (let r = cell.row - 1; r < cell.row + 1; r++) {
+		for (let c = cell.col - 1; c <= cell.col + 1; c++) {
+			for (let r = cell.row - 1; r <= cell.row + 1; r++) {
 				if (c < 0 || r < 0 || c >= this.cols || r >= this.rows || (c == cell.col && r == cell.row)) {
 					continue;
 				} else {
