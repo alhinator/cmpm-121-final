@@ -44,8 +44,10 @@ const main = () => {
     // Load player avatar
     Player.LoadAvatar();
 
-    // Instantiate the player
+    // Instantiate the board
     const board = new Board(GRID_WIDTH, GRID_HEIGHT);
+    // Assign Plant's reference to board.
+    Plant.SetBoard(board);
 
     // Instantiate the player
     const player = new Player(canvas, TILE_SIZE, 5, 5); // Starting at tile (5, 5)
