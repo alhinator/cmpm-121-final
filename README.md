@@ -54,7 +54,7 @@ Team Goal: Our goal as a team is to create a command-line game (accomplished eit
 
 (alhinator)
 
--    The formula for plant growth is: `Math.random() < baseGrowthRate \* sun \* water \* rateViaAdjacency `
+-    The formula for plant growth is: `Math.random() < baseGrowthRate * sun * water * rateViaAdjacency `
 -    BaseGrowthRate is the strain's innate growth rate as dictated in PlantData.json.
 -    sun is the current amount of sun on the tile, similarly, water is the current amount of water on the tile.
 -    rateViaAdjacency begins at 1, and increases by a set amount per "friend" plant that is adjacent to a plant. Friends are specific to each strain, and detailed in PlantData.json.
