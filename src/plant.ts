@@ -67,7 +67,7 @@ export default class Plant {
 	 * Get the current character to display for this plant, based on its plant type and stage.
 	 */
 	public get displayCharacter(): string {
-		return PLANTS[this.name].displayCharacter[this.growth];
+		return PLANTS[this.name].displayCharacters[this.growth];
 	}
 	/**
 	 * Get the growth stage at which this plant has reached maturity. Equal to the largest index - NOT the length - of the displayCharacters array.

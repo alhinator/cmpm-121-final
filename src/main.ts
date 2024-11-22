@@ -1,4 +1,5 @@
 import Board from "./board.ts";
+import Plant from "./plant.ts";
 import Player from "./player.ts";
 import Time from "./time.ts";
 
@@ -54,7 +55,6 @@ const main = () => {
 
     // Game loop
     const gameLoop = () => {
-        // drawGrid(); // Always draw the grid first
         context.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
         board.draw(context, TILE_SIZE); // Draw the board
         player.draw(context); // Draw the player sprite on top of the board

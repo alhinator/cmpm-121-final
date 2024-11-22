@@ -23,6 +23,7 @@ const MAX_HYDRATION = 4;
 
 const DIRT_COLOR = [89, 52, 30];
 const WATER_COLOR = [0, 86, 204];
+const PLANT_COLOR = [30, 171, 0];
 
 /**
  * @interface Cell is a [row, column] interface used to access positions on a board.
@@ -110,22 +111,33 @@ export default class Board {
 			for (let x = 0; x < this.cols; x++) {
 				let tile = this.GetTile({row:y, col:x})!;
 				let color: number[] = [0, 0, 0];
-				if (tile.content == TILETYPE.EMPTY) {
-					let tint_level = tile.water * 0.04;
-
-					color[0] = DIRT_COLOR[0] * (1 - tint_level) + WATER_COLOR[0] * tint_level;
-					color[1] = DIRT_COLOR[1] * (1 - tint_level) + WATER_COLOR[1] * tint_level;
-					color[2] = DIRT_COLOR[2] * (1 - tint_level) + WATER_COLOR[2] * tint_level;
-				} else {
+				if(tile.content == TILETYPE.WATER) {
 					color[0] = WATER_COLOR[0];
 					color[1] = WATER_COLOR[1];
 					color[2] = WATER_COLOR[2];
+				} else {
+					let tint_level = tile.water * 0.04;
+					color[0] = DIRT_COLOR[0] * (1 - tint_level) + WATER_COLOR[0] * tint_level;
+					color[1] = DIRT_COLOR[1] * (1 - tint_level) + WATER_COLOR[1] * tint_level;
+					color[2] = DIRT_COLOR[2] * (1 - tint_level) + WATER_COLOR[2] * tint_level;
 				}
-				color[0] *= Math.max(0.5, tile.sun);
-				color[1] *= Math.max(0.5, tile.sun);
-				color[2] *= Math.max(0.5, tile.sun);
-				context.fillStyle = `rgb(${Math.floor(color[0])}, ${Math.floor(color[1])}, ${Math.floor(color[2])})`;
+				const brightness = Math.max(0.5, tile.sun);
+				color[0] = Math.floor(color[0] * brightness);
+				color[1] = Math.floor(color[1] * brightness);
+				color[2] = Math.floor(color[2] * brightness);
+				context.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
 				context.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+
+				if(tile.content == TILETYPE.PLANT && tile.plant) {
+					color[0] = Math.floor(PLANT_COLOR[0] * brightness);
+					color[1] = Math.floor(PLANT_COLOR[1] * brightness);
+					color[2] = Math.floor(PLANT_COLOR[2] * brightness);
+					context.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+					context.font = "24px monospace";
+					context.textAlign = "center";
+					context.textBaseline = "middle";
+					context.fillText(tile.plant.displayCharacter, (x + 0.5) * tileSize, (y + 0.5) * tileSize);
+				}
 			}
 		}
 
