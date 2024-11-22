@@ -279,7 +279,7 @@ export default class Board {
 		this.sunPosition < -SUN_RANGE ? (this.sunPosition = this.cols - 1 + SUN_RANGE) : this.sunPosition;
 	}
 	/**
-	 * Sets the sunlight value of all tiles within the sun's range to 1 + Random(0, distance from sun]
+	 * Sets the sunlight value of all tiles within the sun's range. Removes sunlight from tiles outside the sun's range.
 	 */
 	private UpdateSunTiles() {
 		//The sun shines light on vertical strips of tiles, centered on the column of the current sun position.
