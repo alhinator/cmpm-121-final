@@ -15,7 +15,7 @@ const MT_TILE = "_";
 /**
  * @constant SUN_RANGE is the rage at which the sun will provide light.
  */
-const SUN_RANGE = 4;
+const SUN_RANGE = 6;
 /**
  * @constant MAX_HYDRATION is the maximum possible hydration level of a tile.
  */
@@ -61,29 +61,9 @@ export default class Board {
 		this.cols = cols;
 		this.rows = rows;
 		this.board = [];
-		for (let i = 0; i < rows; i++) {
-			const tmp: Tile[] = [];
-			for (let j = 0; j < cols; j++) {
-				tmp.push({
-					cell: { row: i, col: j },
-					content: TILETYPE.EMPTY,
-					sun: 0,
-					water: 0,
-					plant: null,
-				});
-			}
-			this.board.push(tmp);
-		}
 
-		for (let y = 0; y < this.rows; y++) {
-			for (let x = 0; x < this.cols; x++) {
-				let tile = this.board[y][x];
-				if (Math.random() < 0.25) {
-					tile.content = TILETYPE.WATER;
-					tile.water = MAX_HYDRATION;
-				}
-			}
-		}
+		this.InitTiles();
+		
 	}
 
 	// -------- Public class operations --------
@@ -273,6 +253,25 @@ export default class Board {
 
 	// -------- Private helper funcions --------
 	/**
+	 * Initializes the tiles when creating the board to either an empty or a water tile.
+	 */
+	private InitTiles(){
+		for (let i = 0; i < this.rows; i++) {
+			const tmp: Tile[] = [];
+			for (let j = 0; j < this.cols; j++) {
+				const state = Math.random() < 0.1 ? TILETYPE.WATER : TILETYPE.EMPTY
+				tmp.push({
+					cell: { row: i, col: j },
+					content: state,
+					sun: 0,
+					water: 0,
+					plant: null,
+				});
+			}
+			this.board.push(tmp);
+		}
+	}
+	/**
 	 * Moves the sun from right to left over the board.
 	 */
 	private MoveSun() {
@@ -291,7 +290,7 @@ export default class Board {
 				}
 
 				const distance = Math.abs(col - this.Sun);
-				const lightLevel = distance < SUN_RANGE ? 1 + Math.random() * Math.max(0, SUN_RANGE - distance) : 0;
+				const lightLevel = distance < SUN_RANGE ? 1 + (Math.random()*0.1) * Math.max(0, SUN_RANGE - distance) : 0;
 				this.GetTile({ row: row, col: col })!.sun = lightLevel;
 			}
 		}
