@@ -108,7 +108,7 @@ export default class Board {
 
 		for (let y = 0; y < this.rows; y++) {
 			for (let x = 0; x < this.cols; x++) {
-				let tile = this.board[y][x];
+				let tile = this.GetTile({row:y, col:x})!;
 				let color: number[] = [0, 0, 0];
 				if (tile.content == TILETYPE.EMPTY) {
 					let tint_level = tile.water * 0.04;
