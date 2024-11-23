@@ -50,7 +50,7 @@ const main = () => {
     Plant.SetBoard(board);
 
     // Instantiate the player
-    const player = new Player(canvas, TILE_SIZE, 5, 5); // Starting at tile (5, 5)
+    const player = new Player(canvas, board, TILE_SIZE, 5, 5); // Starting at tile (5, 5)
 
     // Initialize time module
     Time.initialize(app, board);

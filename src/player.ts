@@ -1,3 +1,5 @@
+import Board from "./board";
+
 /**
  * @class Represents the player character in the game.
  */
@@ -7,6 +9,7 @@ export default class Player {
 
     private readonly canvas: HTMLCanvasElement;
     private readonly tileSize: number;
+    private readonly board: Board;
     private x: number;
     private y: number;
     private isMoving: boolean = false;
@@ -27,11 +30,12 @@ export default class Player {
      * @param initialY The starting Y-coordinate (in tiles) of the player.
      * @function Constructs a new Player instance and initializes its position.
      */
-    constructor(canvas: HTMLCanvasElement, tileSize: number, initialX: number, initialY: number) {
+    constructor(canvas: HTMLCanvasElement, board: Board, tileSize: number, initialX: number, initialY: number) {
         if (!Player.avatar) {
             throw new Error("Player: Avatar image not loaded. Call Player.LoadAvatar() first.");
         }
         this.canvas = canvas;
+        this.board = board;
         this.tileSize = tileSize;
         this.x = initialX * tileSize;
         this.y = initialY * tileSize;
@@ -101,6 +105,18 @@ export default class Player {
                 case "ArrowRight":
                 case "d":
                     this.move(1, 0);
+                    break;
+                case "x":
+                    this.board.Sow({
+                        row: Math.round(this.y / this.tileSize) + 1,
+                        col: Math.round(this.x / this.tileSize)
+                    }, "Wheat");
+                    break;
+                case "z":
+                    this.board.Reap({
+                        row: Math.round(this.y / this.tileSize) + 1,
+                        col: Math.round(this.x / this.tileSize)
+                    });
                     break;
             }
 
