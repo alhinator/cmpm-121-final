@@ -1,4 +1,5 @@
 import Board from "./board";
+import Player from "./player";
 
 /**
  * @constant INITIAL_TURN The starting value for the turn counter.
