@@ -72,6 +72,40 @@ export default class Player {
 		context.drawImage(Player.avatar!, this.x, this.y, this.tileSize, this.tileSize);
 	}
 
+	public sow() {
+		const currSeeds = this.seeds.get(this.currentPlant);
+		if (currSeeds && currSeeds > 0) {
+			const success = this.board.Sow(
+				{
+					row: Math.round(this.y / this.tileSize) + 1,
+					col: Math.round(this.x / this.tileSize),
+				},
+				this.currentPlant
+			);
+			if (success) {
+				this.seeds.set(this.currentPlant, currSeeds - 1);
+			}
+		}
+	}
+	public reap() {
+		const reward = this.board.Reap({
+			row: Math.round(this.y / this.tileSize) + 1,
+			col: Math.round(this.x / this.tileSize),
+		});
+		if (reward) {
+			reward.forEach((r: string) => {
+				if (r.includes("Seed")) {
+					const val = r.slice(0, -4);
+					const currSeeds: number = this.seeds.get(val) ? this.seeds.get(val)! : 0;
+					this.seeds.set(val, currSeeds + 1);
+				} else {
+					const currPlants = this.grownPlants.get(r) ? this.grownPlants.get(r)! : 0;
+					this.grownPlants.set(r, currPlants + 1);
+				}
+			});
+		}
+	}
+
 	/**
 	 * Moves the player character by one tile in a specified direction, constrained by the canvas dimensions.
 	 * @param deltaX The number of tiles to move in the X direction.

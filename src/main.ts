@@ -46,6 +46,7 @@ const main = () => {
 
 	// Instantiate the board
 	const board = new Board(GRID_WIDTH, GRID_HEIGHT);
+
 	// Assign Plant's reference to board.
 	Plant.SetBoard(board);
 
@@ -66,6 +67,15 @@ const main = () => {
 	// Initialize time module
 	Time.initialize(app, board);
 
+	// Keyboard listeners for reap and sow
+	window.addEventListener("keydown", (event) => {
+		if (event.key === "1") {
+			player.reap()
+		} else if (event.key === "2") {
+			player.sow();
+		}
+	});
+	
 	// Game loop
 	const gameLoop = () => {
 		context.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
