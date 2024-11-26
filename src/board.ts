@@ -65,6 +65,13 @@ const TileDataSize = floatSize * 7;
  * @float cols
  * @float rows
  * @float sunPosition
+ */
+interface staticBoardData{
+	cols:number,
+	rows:number,
+	sunPosition:number
+}
+ /**
  * @constant The size of additional static board data, in bytes
  */
 const addlData = floatSize * 3;
@@ -73,8 +80,8 @@ const addlData = floatSize * 3;
  * @class Board contains a [row, col] array of Tiles, and the functionality to access and manipulate those tiles.
  */
 export default class Board {
-	public rows: number;
-	public cols: number;
+	public readonly rows: number;
+	public readonly cols: number;
 	private board: ArrayBuffer;
 
 	/**
@@ -191,7 +198,7 @@ export default class Board {
 
 		const bv = new DataView(this.board, MainOffset, TileDataSize);
 		bv.setFloat64(0, t.row);
-		bv.setFloat64(128, t.col);
+		bv.setFloat64(64, t.col);
 		bv.setFloat64(128, t.content);
 		bv.setFloat64(192, t.sun);
 		bv.setFloat64(256, t.water);
@@ -284,7 +291,6 @@ export default class Board {
 	 */
 	public Sow(cell: Cell, id: number) {
 		const tmp = this.GetTile(cell);
-		console.log("in sow");
 		if (tmp && tmp.content == TILETYPE.EMPTY) {
 			tmp.content = TILETYPE.PLANT;
 			tmp.plant = id;
@@ -333,23 +339,6 @@ export default class Board {
 
 	// -------- Private helper funcions --------
 	/**
-	 * @returns The current columnal position of the sun, between 0 and this Board's cols.
-	 */
-	public get Sun(): number {
-		const MainOffset = this.rows * this.cols * TileDataSize;
-		const bv = new DataView(this.board, MainOffset, floatSize);
-		return bv.getFloat64(0);
-	}
-	/**
-	 * Sets the position of the sun in the byte array.
-	 */
-	private set Sun(value: number) {
-		console.log("in sun setter: value= " + value);
-		const MainOffset = this.rows * this.cols * TileDataSize;
-		const bv = new DataView(this.board, MainOffset, floatSize);
-		bv.setFloat64(0, value);
-	}
-	/**
 	 * A single-use helper function to store rows and cols in the byte array
 	 * @param cols Width of the board to initialize to. Cannot be changed once set.
 	 * @param rows Height of the board to initialize to. Cannot be changed once set.
@@ -394,37 +383,6 @@ export default class Board {
 		}
 	}
 	/**
-	 * Moves the sun from right to left over the board.
-	 */
-	private MoveSun() {
-		console.log(this.Sun);
-		this.Sun--;
-		if (this.Sun <= -SUN_RANGE) {
-			this.Sun = this.cols - 1 + SUN_RANGE;
-		}
-	}
-	/**
-	 * Sets the sunlight value of all tiles within the sun's range. Removes sunlight from tiles outside the sun's range.
-	 */
-	private UpdateSunTiles() {
-		//The sun shines light on vertical strips of tiles, centered on the column of the current sun position.
-		for (let row = 0; row < this.rows; row++) {
-			for (let col = 0; col < this.cols; col++) {
-				if (col < 0 || col >= this.cols) {
-					continue;
-				}
-
-				const distance = Math.abs(col - this.Sun);
-				const lightLevel = distance < SUN_RANGE ? 1 + Math.random() * 0.1 * Math.max(0, SUN_RANGE - distance) : 0;
-				const tmp = this.GetTile({ row: row, col: col })!;
-				if (tmp) {
-					tmp.sun = lightLevel;
-					this.SetTile(tmp);
-				}
-			}
-		}
-	}
-	/**
 	 * Hydrates tiles next to water sources. Increases their hydration by 1 + Random(0, 1]. Hydration per tile is capped at MAX_HYDRATION.
 	 */
 	private Hydrate() {
@@ -453,7 +411,6 @@ export default class Board {
 			this.tickTile(tile);
 		});
 	}
-
 	/**
 	 * This plant will attempt to grow one stage based on its base growth rate multiplied by the current sunlight, water, and friend adjacency conditions.
 	 * Consumes 0.5 water from its tile on a failed growth, and 1 water on a successful growth.
@@ -471,7 +428,6 @@ export default class Board {
 		this.SetTile(tile);
 		this.Dehydrate({ row: tile.row, col: tile.col }, waterUse);
 	}
-
 	/**
 	 * Using the current state of the board, get a rate (Default: 1, Max: 1 + 8*GLOBAL_FRIEND_RATE) to increase the growth rate of this plant based on how many "friend plants" are planted next to it.
 	 */
@@ -489,5 +445,67 @@ export default class Board {
 			}
 		});
 		return rateAdjustment;
+	}
+
+	// -------- Sun funcions --------
+	/**
+	 * @returns The current columnal position of the sun, between 0 and this Board's cols.
+	 */
+	public get Sun(): number {
+		const MainOffset = this.rows * this.cols * TileDataSize;
+		const bv = new DataView(this.board, MainOffset, floatSize);
+		return bv.getFloat64(0);
+	}
+	/**
+	 * Sets the position of the sun in the byte array.
+	 */
+	private set Sun(value: number) {
+		const MainOffset = this.rows * this.cols * TileDataSize;
+		const bv = new DataView(this.board, MainOffset, floatSize);
+		bv.setFloat64(0, value);
+	}
+	/**
+	 * Moves the sun from right to left over the board.
+	 */
+	private MoveSun() {
+		this.Sun--;
+		if (this.Sun <= -SUN_RANGE) {
+			this.Sun = this.cols - 1 + SUN_RANGE;
+		}
+	}
+
+	/**
+	 * Sets the sunlight value of all tiles within the sun's range. Removes sunlight from tiles outside the sun's range.
+	 */
+	private UpdateSunTiles() {
+		//The sun shines light on vertical strips of tiles, centered on the column of the current sun position.
+		for (let row = 0; row < this.rows; row++) {
+			for (let col = 0; col < this.cols; col++) {
+				if (col < 0 || col >= this.cols) {
+					continue;
+				}
+
+				const distance = Math.abs(col - this.Sun);
+				const lightLevel = distance < SUN_RANGE ? 1 + Math.random() * 0.1 * Math.max(0, SUN_RANGE - distance) : 0;
+				const tmp = this.GetTile({ row: row, col: col })!;
+				if (tmp) {
+					tmp.sun = lightLevel;
+					this.SetTile(tmp);
+				}
+			}
+		}
+	}
+	// -------- Data setting and saving funcions --------
+	public requestState():ArrayBuffer{
+		return this.board;
+	}
+	public setState(buff:ArrayBuffer, data:staticBoardData){
+		if(buff.byteLength != data.rows * data.cols * TileDataSize + addlData){
+			throw new Error("board instance: setState(): Bad arrayBuffer input: does not match correct size.")
+			return;
+		}
+
+		const bv = new DataView(buff, data.rows * data.cols * TileDataSize, addlData)
+		this.board = buff;
 	}
 }
