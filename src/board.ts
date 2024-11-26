@@ -48,6 +48,7 @@ export class Tile {
 		this.plant = data.plant;
 		this.growth = 0;
 	}
+	//POTENTIAL TODO: setters and getters that trigger a write to the board.
 }
 const TileDataSize = 448;
 
@@ -136,7 +137,7 @@ export default class Board {
 				context.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
 				context.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
 
-				if (tile.content == TILETYPE.PLANT && tile.plant) {
+				if (tile.content == TILETYPE.PLANT && tile.plant != NO_PLANT) {
 					color[0] = Math.floor(PLANT_COLOR[0] * brightness);
 					color[1] = Math.floor(PLANT_COLOR[1] * brightness);
 					color[2] = Math.floor(PLANT_COLOR[2] * brightness);
@@ -170,7 +171,7 @@ export default class Board {
 
 	// -------- Public single-tile operations --------
 	/**
-	 * With tile information, sets data for a tile in the board byte array.
+	 * With tile information, sets data for a tile in the board byte array. As of right now, this needs to be called after modifying any temporary tile variable.
 	 */
 	public SetTile(t: Tile) {
 		const MainOffset = (t.row * this.cols + t.col) * TileDataSize;
@@ -216,6 +217,7 @@ export default class Board {
 		if (tmp && tmp.content != TILETYPE.WATER) {
 			tmp.content = TILETYPE.WATER;
 			tmp.plant = -1;
+			this.SetTile(tmp);
 			return true;
 		}
 		return false;
@@ -240,6 +242,8 @@ export default class Board {
 		if (tmp && tmp.content != TILETYPE.EMPTY) {
 			tmp.content = TILETYPE.EMPTY;
 			tmp.plant = NO_PLANT;
+			tmp.growth = 0;
+			this.SetTile(tmp);
 			return true;
 		}
 		return false;
@@ -267,9 +271,12 @@ export default class Board {
 	 */
 	public Sow(cell: Cell, id: number) {
 		const tmp = this.GetTile(cell);
+		console.log("in sow")
 		if (tmp && tmp.content == TILETYPE.EMPTY) {
 			tmp.content = TILETYPE.PLANT;
 			tmp.plant = id;
+			tmp.growth = 0;
+			this.SetTile(tmp);
 			return true;
 		}
 		return false;
@@ -312,6 +319,10 @@ export default class Board {
 	}
 
 	// -------- Private helper funcions --------
+	/**
+	 * 
+	 * @returns A 1-D array of Tiles that comprise the entire board.
+	 */
 	private GetAllTiles(): Tile[] {
 		const ts: Tile[] = [];
 		for (let row = 0; row < this.rows; row++) {
@@ -335,7 +346,7 @@ export default class Board {
 					sun: 0,
 					water: 0,
 					plant: NO_PLANT,
-					growth: NO_PLANT,
+					growth: 0,
 				};
 				this.SetTile(tmp);
 			}
@@ -361,7 +372,11 @@ export default class Board {
 
 				const distance = Math.abs(col - this.Sun);
 				const lightLevel = distance < SUN_RANGE ? 1 + Math.random() * 0.1 * Math.max(0, SUN_RANGE - distance) : 0;
-				this.GetTile({ row: row, col: col })!.sun = lightLevel;
+				const tmp = this.GetTile({ row: row, col: col })!;
+				if(tmp){
+					tmp.sun = lightLevel;
+					this.SetTile(tmp);
+				}
 			}
 		}
 	}
@@ -382,6 +397,7 @@ export default class Board {
 				if (neighbor.water > MAX_HYDRATION) {
 					neighbor.water = MAX_HYDRATION;
 				}
+				this.SetTile(neighbor);
 			});
 		});
 	}
@@ -408,6 +424,7 @@ export default class Board {
 			tile.growth++;
 			waterUse = 1;
 		}
+		this.SetTile(tile);
 		this.Dehydrate({ row: tile.row, col: tile.col }, waterUse);
 	}
 

@@ -161,7 +161,7 @@ export default class Player {
 		});
 		if (reward) {
 			reward.forEach((r: string) => {
-				if (r.includes("Seed")) {
+				if (r.toString().includes("Seed")) {
 					const val = parseInt(r.slice(0, -4));
 					const currSeeds: number = this.seeds.get(val) ? this.seeds.get(val)! : 0;
 					this.seeds.set(val, currSeeds + 1);

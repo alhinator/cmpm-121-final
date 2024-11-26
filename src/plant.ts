@@ -25,7 +25,7 @@ export default class Plant {
 	 * Get the name of the plant as defined in the JSON file.
 	 */
 	public static name(id: number) {
-		const retVal = PLANTS[id.toString()].name;
+		const retVal = PLANTS[id.toString()].plantName;
 		return retVal;
 	}
 	/**
