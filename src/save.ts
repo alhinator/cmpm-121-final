@@ -28,23 +28,33 @@ export const addlData = floatSize * 3;
  * @float rows
  * @float sunPosition
  */
-export interface staticBoardData{
+export interface NontileBoardData{
 	cols:number,
 	rows:number,
 	sunPosition?:number
 }
 
+/**
+ * Maintains the save state of the board and player in a 1-D byte array.
+ */
 export default class StateManager {
     private stateBuffer:ArrayBuffer;
     private boardDataLength:number;
-    
-    constructor(data:staticBoardData){
+    /**
+     * 
+     * @param data The nontile board data: number of rows and columns in the board.
+     */
+    constructor(data:NontileBoardData){
         this.boardDataLength = data.rows * data.cols * TileDataSize + addlData
         this.stateBuffer = new ArrayBuffer(this.boardDataLength + PlayerDataSize);
     }
-    public get board(){
+    public get board():DataView{
         const bv = new DataView(this.stateBuffer, 0, this.boardDataLength)
         return bv;
+    }
+    public get player():DataView{
+        const bv = new DataView(this.stateBuffer, this.boardDataLength, PlayerDataSize);
+        return bv
     }
     public setColsAndRows(cols: number, rows: number) {
 		const MainOffset = rows * cols * TileDataSize;
