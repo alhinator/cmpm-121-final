@@ -29,6 +29,10 @@ export interface Cell {
 	col: number;
 }
 /**
+ * @constant The size of 1 (one) float64
+ */
+const floatSize = 64;
+/**
  * @class Tile contains content, sun and water levels, and potential plant data at a [row, col] position.
  */
 export class Tile {
@@ -51,20 +55,26 @@ export class Tile {
 	//POTENTIAL TODO: setters and getters that trigger a write to the board.
 }
 /**
- * @constant The size of a Tile data structure, in bytes
+ * @constant The size of a Tile data structure, in bits
  */
-const TileDataSize = 448;
+const TileDataSize = floatSize * 7;
+
 /**
- * @constant The size of 1 (one) float64
+ * Additional points of data we need to store
+ * Currently:
+ * @float cols
+ * @float rows
+ * @float sunPosition
+ * @constant The size of additional static board data, in bytes
  */
-const sunPosSize = 64;
+const addlData = floatSize * 3;
 
 /**
  * @class Board contains a [row, col] array of Tiles, and the functionality to access and manipulate those tiles.
  */
 export default class Board {
-	public readonly cols: number;
-	public readonly rows: number;
+	public rows: number;
+	public cols: number;
 	private board: ArrayBuffer;
 
 	/**
@@ -73,10 +83,12 @@ export default class Board {
 	 * @param rows Height of the board to initialize to. Cannot be changed once set.
 	 */
 	constructor(cols: number, rows: number) {
-		this.cols = cols;
 		this.rows = rows;
-		this.board = new ArrayBuffer(cols * rows * TileDataSize + sunPosSize);
-		this.Sun = -SUN_RANGE - 1;
+		this.cols = cols;
+		this.board = new ArrayBuffer(cols * rows * TileDataSize + addlData);
+		this.setColsAndRows(cols, rows);
+
+		this.Sun = this.cols - 1 + SUN_RANGE;
 		this.InitTiles();
 	}
 
@@ -106,19 +118,7 @@ export default class Board {
 		this.Hydrate();
 		this.Grow();
 	}
-	/**
-	 * @returns The current columnal position of the sun, between 0 and this Board's cols.
-	 */
-	public get Sun(): number {
-		const MainOffset = this.rows * this.cols * TileDataSize - sunPosSize;
-		const bv = new DataView(this.board, MainOffset, sunPosSize);
-		return bv.getFloat64(0);
-	}
-	public set Sun(value: number) {
-		const MainOffset = this.rows * this.cols * TileDataSize - sunPosSize;
-		const bv = new DataView(this.board, MainOffset, sunPosSize);
-		bv.setFloat64(0, value);
-	}
+
 	/**
 	 * Draws the board.
 	 * @param context The rendering context to draw the board to
@@ -333,6 +333,34 @@ export default class Board {
 
 	// -------- Private helper funcions --------
 	/**
+	 * @returns The current columnal position of the sun, between 0 and this Board's cols.
+	 */
+	public get Sun(): number {
+		const MainOffset = this.rows * this.cols * TileDataSize;
+		const bv = new DataView(this.board, MainOffset, floatSize);
+		return bv.getFloat64(0);
+	}
+	/**
+	 * Sets the position of the sun in the byte array.
+	 */
+	private set Sun(value: number) {
+		console.log("in sun setter: value= " + value);
+		const MainOffset = this.rows * this.cols * TileDataSize;
+		const bv = new DataView(this.board, MainOffset, floatSize);
+		bv.setFloat64(0, value);
+	}
+	/**
+	 * A single-use helper function to store rows and cols in the byte array
+	 * @param cols Width of the board to initialize to. Cannot be changed once set.
+	 * @param rows Height of the board to initialize to. Cannot be changed once set.
+	 */
+	private setColsAndRows(cols: number, rows: number) {
+		const MainOffset = this.rows * this.cols * TileDataSize;
+		const bv = new DataView(this.board, MainOffset, addlData);
+		bv.setFloat64(64, cols);
+		bv.setFloat64(128, rows);
+	}
+	/**
 	 *
 	 * @returns A 1-D array of Tiles that comprise the entire board.
 	 */
@@ -369,8 +397,11 @@ export default class Board {
 	 * Moves the sun from right to left over the board.
 	 */
 	private MoveSun() {
+		console.log(this.Sun);
 		this.Sun--;
-		this.Sun < -SUN_RANGE ? (this.Sun = this.cols - 1 + SUN_RANGE) : this.Sun;
+		if (this.Sun <= -SUN_RANGE) {
+			this.Sun = this.cols - 1 + SUN_RANGE;
+		}
 	}
 	/**
 	 * Sets the sunlight value of all tiles within the sun's range. Removes sunlight from tiles outside the sun's range.
