@@ -50,7 +50,14 @@ export class Tile {
 	}
 	//POTENTIAL TODO: setters and getters that trigger a write to the board.
 }
+/**
+ * @constant The size of a Tile data structure, in bytes
+ */
 const TileDataSize = 448;
+/**
+ * @constant The size of 1 (one) float64
+ */
+const sunPosSize = 64;
 
 /**
  * @class Board contains a [row, col] array of Tiles, and the functionality to access and manipulate those tiles.
@@ -59,7 +66,6 @@ export default class Board {
 	public readonly cols: number;
 	public readonly rows: number;
 	private board: ArrayBuffer;
-	private sunPosition: number = -SUN_RANGE;
 
 	/**
 	 * @constructor Initialize an empty board.
@@ -69,8 +75,8 @@ export default class Board {
 	constructor(cols: number, rows: number) {
 		this.cols = cols;
 		this.rows = rows;
-		this.board = new ArrayBuffer(cols * rows * TileDataSize);
-
+		this.board = new ArrayBuffer(cols * rows * TileDataSize + sunPosSize);
+		this.Sun = -SUN_RANGE - 1;
 		this.InitTiles();
 	}
 
@@ -104,7 +110,14 @@ export default class Board {
 	 * @returns The current columnal position of the sun, between 0 and this Board's cols.
 	 */
 	public get Sun(): number {
-		return this.sunPosition;
+		const MainOffset = this.rows * this.cols * TileDataSize - sunPosSize;
+		const bv = new DataView(this.board, MainOffset, sunPosSize);
+		return bv.getFloat64(0);
+	}
+	public set Sun(value: number) {
+		const MainOffset = this.rows * this.cols * TileDataSize - sunPosSize;
+		const bv = new DataView(this.board, MainOffset, sunPosSize);
+		bv.setFloat64(0, value);
 	}
 	/**
 	 * Draws the board.
@@ -271,7 +284,7 @@ export default class Board {
 	 */
 	public Sow(cell: Cell, id: number) {
 		const tmp = this.GetTile(cell);
-		console.log("in sow")
+		console.log("in sow");
 		if (tmp && tmp.content == TILETYPE.EMPTY) {
 			tmp.content = TILETYPE.PLANT;
 			tmp.plant = id;
@@ -320,7 +333,7 @@ export default class Board {
 
 	// -------- Private helper funcions --------
 	/**
-	 * 
+	 *
 	 * @returns A 1-D array of Tiles that comprise the entire board.
 	 */
 	private GetAllTiles(): Tile[] {
@@ -356,8 +369,8 @@ export default class Board {
 	 * Moves the sun from right to left over the board.
 	 */
 	private MoveSun() {
-		this.sunPosition--;
-		this.sunPosition < -SUN_RANGE ? (this.sunPosition = this.cols - 1 + SUN_RANGE) : this.sunPosition;
+		this.Sun--;
+		this.Sun < -SUN_RANGE ? (this.Sun = this.cols - 1 + SUN_RANGE) : this.Sun;
 	}
 	/**
 	 * Sets the sunlight value of all tiles within the sun's range. Removes sunlight from tiles outside the sun's range.
@@ -373,7 +386,7 @@ export default class Board {
 				const distance = Math.abs(col - this.Sun);
 				const lightLevel = distance < SUN_RANGE ? 1 + Math.random() * 0.1 * Math.max(0, SUN_RANGE - distance) : 0;
 				const tmp = this.GetTile({ row: row, col: col })!;
-				if(tmp){
+				if (tmp) {
 					tmp.sun = lightLevel;
 					this.SetTile(tmp);
 				}
