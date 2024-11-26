@@ -1,4 +1,5 @@
 import Board from "./board";
+import Plant, { NO_PLANT } from "./plant";
 
 /**
  * @class Represents the player character in the game.
@@ -13,9 +14,9 @@ export default class Player {
 	private x: number;
 	private y: number;
 	private isMoving: boolean = false;
-	private currentPlant: string = "";
-	private seeds: Map<string, number>;
-	private grownPlants: Map<string, number>;
+	private currentPlant: number = NO_PLANT;
+	private seeds: Map<number, number>;
+	private grownPlants: Map<number, number>;
 
 	/**
 	 * @function Loads the player avatar image. Must be called before creating any Player instances.
@@ -44,8 +45,8 @@ export default class Player {
 		this.y = initialY * tileSize;
 		this.setupKeyboardListeners();
 
-		this.seeds = new Map<string, number>();
-		this.grownPlants = new Map<string, number>();
+		this.seeds = new Map<number, number>();
+		this.grownPlants = new Map<number, number>();
 		this.initInventory();
 	}
 
@@ -70,40 +71,6 @@ export default class Player {
 	public draw(context: CanvasRenderingContext2D): void {
 		//this.context.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear previous frame
 		context.drawImage(Player.avatar!, this.x, this.y, this.tileSize, this.tileSize);
-	}
-
-	public sow() {
-		const currSeeds = this.seeds.get(this.currentPlant);
-		if (currSeeds && currSeeds > 0) {
-			const success = this.board.Sow(
-				{
-					row: Math.round(this.y / this.tileSize) + 1,
-					col: Math.round(this.x / this.tileSize),
-				},
-				this.currentPlant
-			);
-			if (success) {
-				this.seeds.set(this.currentPlant, currSeeds - 1);
-			}
-		}
-	}
-	public reap() {
-		const reward = this.board.Reap({
-			row: Math.round(this.y / this.tileSize) + 1,
-			col: Math.round(this.x / this.tileSize),
-		});
-		if (reward) {
-			reward.forEach((r: string) => {
-				if (r.includes("Seed")) {
-					const val = r.slice(0, -4);
-					const currSeeds: number = this.seeds.get(val) ? this.seeds.get(val)! : 0;
-					this.seeds.set(val, currSeeds + 1);
-				} else {
-					const currPlants = this.grownPlants.get(r) ? this.grownPlants.get(r)! : 0;
-					this.grownPlants.set(r, currPlants + 1);
-				}
-			});
-		}
 	}
 
 	/**
@@ -167,10 +134,10 @@ export default class Player {
 	}
 
 	private initInventory() {
-		this.seeds.set("Wheat", 3);
-		this.seeds.set("Corn", 3);
-		this.seeds.set("Rice", 3);
-		this.currentPlant = "Wheat";
+		this.seeds.set(0, 3);
+		this.seeds.set(1, 3);
+		this.seeds.set(2, 3);
+		this.currentPlant = 0;
 	}
 	private attemptToSow() {
 		const currSeeds = this.seeds.get(this.currentPlant);
@@ -195,12 +162,12 @@ export default class Player {
 		if (reward) {
 			reward.forEach((r: string) => {
 				if (r.includes("Seed")) {
-					const val = r.slice(0, -4);
+					const val = parseInt(r.slice(0, -4));
 					const currSeeds: number = this.seeds.get(val) ? this.seeds.get(val)! : 0;
 					this.seeds.set(val, currSeeds + 1);
 				} else {
-					const currPlants = this.grownPlants.get(r) ? this.grownPlants.get(r)! : 0;
-					this.grownPlants.set(r, currPlants + 1);
+					const currPlants = this.grownPlants.get(parseInt(r)) ? this.grownPlants.get(parseInt(r))! : 0;
+					this.grownPlants.set(parseInt(r), currPlants + 1);
 				}
 			});
 		}
@@ -208,7 +175,7 @@ export default class Player {
 	private cycleSeeds() {
 		let next = false;
 		let found = false;
-		this.seeds.forEach((_value: number, key: string) => {
+		this.seeds.forEach((_value: number, key: number) => {
 			if (!found) {
 				if (next) {
 					this.currentPlant = key;
@@ -228,19 +195,19 @@ export default class Player {
 	public requestInventoryContents(): string {
 		let retVal = `Seeds: <br>`;
 		this.seeds.forEach((val, key) => {
-			retVal += `&ensp;${key}: ${val}<br>`;
+			retVal += `&ensp;${Plant.name(key)}: ${val}<br>`;
 		});
 		retVal += "Crops:<br>";
 		this.grownPlants.forEach((val, key) => {
-			retVal += `&ensp;${key}: ${val}<br>`;
+			retVal += `&ensp;${Plant.name(key)}: ${val}<br>`;
 		});
 
 		return retVal;
 	}
     public checkWinCon():boolean{ //MESSY
-        const wh = this.grownPlants.get("Wheat");
-        const co = this.grownPlants.get("Corn");
-        const ri = this.grownPlants.get("Rice");
+        const wh = this.grownPlants.get(0);
+        const co = this.grownPlants.get(1);
+        const ri = this.grownPlants.get(2);
         if( wh && wh >= 10 && co && co >= 10 && ri && ri >=10){
             return true;
         }

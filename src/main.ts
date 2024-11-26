@@ -1,5 +1,4 @@
 import Board from "./board.ts";
-import Plant from "./plant.ts";
 import Player from "./player.ts";
 import Time from "./time.ts";
 
@@ -47,9 +46,6 @@ const main = () => {
 	// Instantiate the board
 	const board = new Board(GRID_WIDTH, GRID_HEIGHT);
 
-	// Assign Plant's reference to board.
-	Plant.SetBoard(board);
-
 	// Instantiate the player
 	const player = new Player(canvas, board, TILE_SIZE, 5, 5); // Starting at tile (5, 5);
 
@@ -66,15 +62,6 @@ const main = () => {
 
 	// Initialize time module
 	Time.initialize(app, board);
-
-	// Keyboard listeners for reap and sow
-	window.addEventListener("keydown", (event) => {
-		if (event.key === "1") {
-			player.reap()
-		} else if (event.key === "2") {
-			player.sow();
-		}
-	});
 	
 	// Game loop
 	const gameLoop = () => {

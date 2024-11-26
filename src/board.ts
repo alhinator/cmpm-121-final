@@ -1,4 +1,4 @@
-import Plant from "./plant";
+import Plant, { NO_PLANT, GLOBAL_FRIEND_RATE } from "./plant";
 
 /**
  * @enum TILETYPE the basic enum determining the current state of a Tile
@@ -8,10 +8,6 @@ export enum TILETYPE {
 	PLANT,
 	WATER,
 }
-/**
- * @constant MT_TILE is the default character to be used when a tile contains no plant.
- */
-const MT_TILE = "_";
 /**
  * @constant SUN_RANGE is the rage at which the sun will provide light.
  */
@@ -32,17 +28,28 @@ export interface Cell {
 	row: number;
 	col: number;
 }
-
 /**
- * @interface Tile contains content, sun and water levels, and potential plant data at a [row, col] position.
+ * @class Tile contains content, sun and water levels, and potential plant data at a [row, col] position.
  */
-export interface Tile {
-	cell: Cell;
-	content: TILETYPE;
-	sun: number;
-	water: number;
-	plant: Plant | null;
+export class Tile {
+	public row: number;
+	public col: number;
+	public content: number;
+	public sun: number;
+	public water: number;
+	public plant: number;
+	public growth: number;
+	constructor(data: { cell: Cell; content: TILETYPE; sun: number; water: number; plant: number }) {
+		this.row = data.cell.row;
+		this.col = data.cell.col;
+		this.content = data.content;
+		this.sun = data.sun;
+		this.water = data.water;
+		this.plant = data.plant;
+		this.growth = 0;
+	}
 }
+const TileDataSize = 448;
 
 /**
  * @class Board contains a [row, col] array of Tiles, and the functionality to access and manipulate those tiles.
@@ -50,7 +57,7 @@ export interface Tile {
 export default class Board {
 	public readonly cols: number;
 	public readonly rows: number;
-	private board: Tile[][];
+	private board: ArrayBuffer;
 	private sunPosition: number = -SUN_RANGE;
 
 	/**
@@ -61,10 +68,9 @@ export default class Board {
 	constructor(cols: number, rows: number) {
 		this.cols = cols;
 		this.rows = rows;
-		this.board = [];
+		this.board = new ArrayBuffer(cols * rows * TileDataSize);
 
 		this.InitTiles();
-		
 	}
 
 	// -------- Public class operations --------
@@ -76,7 +82,9 @@ export default class Board {
 		let retStr = "";
 		for (let i = 0; i < this.rows; i++) {
 			for (let j = 0; j < this.cols; j++) {
-				retStr += this.board[i][j].plant ? this.board[i][j].plant!.displayCharacter : MT_TILE;
+				const tile = this.GetTile({ row: i, col: j })!;
+				const display = Plant.displayCharacter(tile.plant, tile.growth);
+				retStr += display;
 			}
 			retStr += "\n";
 		}
@@ -109,9 +117,9 @@ export default class Board {
 
 		for (let y = 0; y < this.rows; y++) {
 			for (let x = 0; x < this.cols; x++) {
-				let tile = this.GetTile({row:y, col:x})!;
+				let tile = this.GetTile({ row: y, col: x })!;
 				let color: number[] = [0, 0, 0];
-				if(tile.content == TILETYPE.WATER) {
+				if (tile.content == TILETYPE.WATER) {
 					color[0] = WATER_COLOR[0];
 					color[1] = WATER_COLOR[1];
 					color[2] = WATER_COLOR[2];
@@ -128,7 +136,7 @@ export default class Board {
 				context.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
 				context.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
 
-				if(tile.content == TILETYPE.PLANT && tile.plant) {
+				if (tile.content == TILETYPE.PLANT && tile.plant) {
 					color[0] = Math.floor(PLANT_COLOR[0] * brightness);
 					color[1] = Math.floor(PLANT_COLOR[1] * brightness);
 					color[2] = Math.floor(PLANT_COLOR[2] * brightness);
@@ -136,7 +144,7 @@ export default class Board {
 					context.font = "24px monospace";
 					context.textAlign = "center";
 					context.textBaseline = "middle";
-					context.fillText(tile.plant.displayCharacter, (x + 0.5) * tileSize, (y + 0.5) * tileSize);
+					context.fillText(Plant.displayCharacter(tile.plant, tile.growth), (x + 0.5) * tileSize, (y + 0.5) * tileSize);
 				}
 			}
 		}
@@ -162,6 +170,22 @@ export default class Board {
 
 	// -------- Public single-tile operations --------
 	/**
+	 * With tile information, sets data for a tile in the board byte array.
+	 */
+	public SetTile(t: Tile) {
+		const MainOffset = (t.row * this.cols + t.col) * TileDataSize;
+
+		const bv = new DataView(this.board, MainOffset, TileDataSize);
+		bv.setFloat64(0, t.row);
+		bv.setFloat64(128, t.col);
+		bv.setFloat64(128, t.content);
+		bv.setFloat64(192, t.sun);
+		bv.setFloat64(256, t.water);
+		bv.setFloat64(320, t.plant);
+		bv.setFloat64(384, t.growth);
+	}
+	/**
+	 * With postition information, returns data of the board's byte array in Tile form.
 	 *
 	 * @param cell The [row, col] position at which to get Tile data.
 	 * @returns the Tile data for that position.
@@ -170,7 +194,16 @@ export default class Board {
 		if (cell.row >= this.rows || cell.row < 0 || cell.col >= this.cols || cell.col < 0) {
 			return null;
 		}
-		return this.board[cell.row][cell.col];
+		const MainOffset = (cell.row * this.cols + cell.col) * TileDataSize;
+
+		const bv = new DataView(this.board, MainOffset, TileDataSize);
+		const tmpContent = bv.getFloat64(128);
+		const tmpSun = bv.getFloat64(192);
+		const tmpWater = bv.getFloat64(256);
+		const tmpPlant = bv.getFloat64(320);
+		const tmpGrowth = bv.getFloat64(384);
+
+		return { row: cell.row, col: cell.col, content: tmpContent, sun: tmpSun, water: tmpWater, plant: tmpPlant, growth: tmpGrowth };
 	}
 	/**
 	 *
@@ -182,7 +215,7 @@ export default class Board {
 		const tmp = this.GetTile(cell);
 		if (tmp && tmp.content != TILETYPE.WATER) {
 			tmp.content = TILETYPE.WATER;
-			tmp.plant = null;
+			tmp.plant = -1;
 			return true;
 		}
 		return false;
@@ -206,7 +239,7 @@ export default class Board {
 		const tmp = this.GetTile(cell);
 		if (tmp && tmp.content != TILETYPE.EMPTY) {
 			tmp.content = TILETYPE.EMPTY;
-			tmp.plant = null;
+			tmp.plant = NO_PLANT;
 			return true;
 		}
 		return false;
@@ -216,10 +249,10 @@ export default class Board {
 	 * @param cell The [row, col] position to attempt a reap.
 	 * @returns If a plant was reaped, returns the reward. If no plant was reaped, returns false.
 	 */
-	public Reap(cell:Cell):string[] | false{
+	public Reap(cell: Cell): string[] | false {
 		const tmp = this.GetTile(cell);
-		if(tmp && tmp.plant && tmp.plant.growth == tmp.plant.growthCap){
-			let retVal = tmp.plant.reward
+		if (tmp && tmp.plant != NO_PLANT && tmp.growth == Plant.growthCap(tmp.plant)) {
+			let retVal = Plant.reward(tmp.plant);
 			this.Till(cell);
 			return retVal;
 		} else {
@@ -232,11 +265,11 @@ export default class Board {
 	 * @param name The name of the plant as specified in the PlantData.json file.
 	 * @returns The success state of the operation.
 	 */
-	public Sow(cell: Cell, name: string) {
+	public Sow(cell: Cell, id: number) {
 		const tmp = this.GetTile(cell);
 		if (tmp && tmp.content == TILETYPE.EMPTY) {
 			tmp.content = TILETYPE.PLANT;
-			tmp.plant = new Plant(name, cell);
+			tmp.plant = id;
 			return true;
 		}
 		return false;
@@ -272,30 +305,40 @@ export default class Board {
 		const adj = this.GetAdjacentTiles(cell);
 		adj.forEach((tile) => {
 			if (tile.plant) {
-				retVal.push(tile.plant.name);
+				retVal.push(Plant.name(tile.plant));
 			}
 		});
 		return retVal.length > 0 ? retVal : null;
 	}
 
 	// -------- Private helper funcions --------
+	private GetAllTiles(): Tile[] {
+		const ts: Tile[] = [];
+		for (let row = 0; row < this.rows; row++) {
+			for (let col = 0; col < this.cols; col++) {
+				ts.push(this.GetTile({ row: row, col: col })!);
+			}
+		}
+		return ts;
+	}
 	/**
 	 * Initializes the tiles when creating the board to either an empty or a water tile.
 	 */
-	private InitTiles(){
+	private InitTiles() {
 		for (let i = 0; i < this.rows; i++) {
-			const tmp: Tile[] = [];
 			for (let j = 0; j < this.cols; j++) {
-				const state = Math.random() < 0.1 ? TILETYPE.WATER : TILETYPE.EMPTY
-				tmp.push({
-					cell: { row: i, col: j },
+				const state = Math.random() < 0.1 ? TILETYPE.WATER : TILETYPE.EMPTY;
+				let tmp: Tile = {
+					row: i,
+					col: j,
 					content: state,
 					sun: 0,
 					water: 0,
-					plant: null,
-				});
+					plant: NO_PLANT,
+					growth: NO_PLANT,
+				};
+				this.SetTile(tmp);
 			}
-			this.board.push(tmp);
 		}
 	}
 	/**
@@ -317,7 +360,7 @@ export default class Board {
 				}
 
 				const distance = Math.abs(col - this.Sun);
-				const lightLevel = distance < SUN_RANGE ? 1 + (Math.random()*0.1) * Math.max(0, SUN_RANGE - distance) : 0;
+				const lightLevel = distance < SUN_RANGE ? 1 + Math.random() * 0.1 * Math.max(0, SUN_RANGE - distance) : 0;
 				this.GetTile({ row: row, col: col })!.sun = lightLevel;
 			}
 		}
@@ -327,15 +370,13 @@ export default class Board {
 	 */
 	private Hydrate() {
 		const waterTiles: Tile[] = [];
-		this.board.forEach((row) => {
-			row.forEach((tile) => {
-				if (tile.content == TILETYPE.WATER) {
-					waterTiles.push(tile);
-				}
-			});
+		this.GetAllTiles().forEach((tile) => {
+			if (tile.content == TILETYPE.WATER) {
+				waterTiles.push(tile);
+			}
 		});
 		waterTiles.forEach((waterTile) => {
-			const adjs = this.GetAdjacentTiles(waterTile.cell);
+			const adjs = this.GetAdjacentTiles({ row: waterTile.row, col: waterTile.col });
 			adjs.forEach((neighbor) => {
 				neighbor.water += 1 + Math.random();
 				if (neighbor.water > MAX_HYDRATION) {
@@ -348,10 +389,44 @@ export default class Board {
 	 * Tells all plants to attempt to grow via their tick methods.
 	 */
 	private Grow() {
-		this.board.forEach((row) => {
-			row.forEach((tile) => {
-				tile.plant?.tick();
-			});
+		this.GetAllTiles().forEach((tile) => {
+			this.tickTile(tile);
 		});
+	}
+
+	/**
+	 * This plant will attempt to grow one stage based on its base growth rate multiplied by the current sunlight, water, and friend adjacency conditions.
+	 * Consumes 0.5 water from its tile on a failed growth, and 1 water on a successful growth.
+	 */
+	private tickTile(tile: Tile) {
+		if (tile.plant == NO_PLANT) {
+			return;
+		}
+		const currRate = Plant.baseGrowthRate(tile.plant) * tile.sun * tile.water * this.rateViaAdjacency(tile);
+		let waterUse = 0.5;
+		if (tile.growth < Plant.growthCap(tile.plant) && Math.random() < currRate) {
+			tile.growth++;
+			waterUse = 1;
+		}
+		this.Dehydrate({ row: tile.row, col: tile.col }, waterUse);
+	}
+
+	/**
+	 * Using the current state of the board, get a rate (Default: 1, Max: 1 + 8*GLOBAL_FRIEND_RATE) to increase the growth rate of this plant based on how many "friend plants" are planted next to it.
+	 */
+	private rateViaAdjacency(t: Tile): number {
+		//TODO: IMPLEMENT ADJACENCY GETTERS
+		const list = this.GetAdjacentPlants(t);
+		if (!list) {
+			return 1;
+		}
+		const myFriends = Plant.adjacencyFriends(t.plant);
+		let rateAdjustment = 1;
+		list.forEach((friend) => {
+			if (myFriends.includes(friend)) {
+				rateAdjustment += GLOBAL_FRIEND_RATE;
+			}
+		});
+		return rateAdjustment;
 	}
 }
