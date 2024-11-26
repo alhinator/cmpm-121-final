@@ -45,13 +45,13 @@ const main = () => {
 	Player.LoadAvatar();
 
 	//Create State Manager
-	const StateMGR = new StateManager({rows:GRID_HEIGHT, cols:GRID_WIDTH})
+	const StateMGR = new StateManager({ rows: GRID_HEIGHT, cols: GRID_WIDTH });
 
 	// Instantiate the board
 	const board = new Board(GRID_WIDTH, GRID_HEIGHT, StateMGR);
 
 	// Instantiate the player
-	const player = new Player(canvas, board, TILE_SIZE, 5, 5); // Starting at tile (5, 5);
+	const player = new Player(canvas, board, TILE_SIZE, 5, 5, StateMGR);
 
 	// MESSY CODE: REFACTOR LATER
 	//create and append the player inventory:
@@ -66,7 +66,7 @@ const main = () => {
 
 	// Initialize time module
 	Time.initialize(app, board);
-	
+
 	// Game loop
 	const gameLoop = () => {
 		context.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen

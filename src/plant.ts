@@ -21,6 +21,9 @@ export const NO_PLANT = -1;
  */
 export default class Plant {
 	// -------- Property Getters --------
+	public static get numPlants(){
+		return PLANTS["NumPlants"]
+	}
 	/**
 	 * Get the name of the plant as defined in the JSON file.
 	 */

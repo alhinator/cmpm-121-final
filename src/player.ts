@@ -1,5 +1,6 @@
 import Board from "./board";
 import Plant, { NO_PLANT } from "./plant";
+import StateManager, { floatSize } from "./save";
 
 /**
  * @class Represents the player character in the game.
@@ -9,14 +10,12 @@ export default class Player {
 	private static avatar: HTMLImageElement | null = null;
 
 	private readonly canvas: HTMLCanvasElement;
-	private readonly tileSize: number;
+
 	private readonly board: Board;
-	private x: number;
-	private y: number;
+	private StateMGR: StateManager;
+
 	private isMoving: boolean = false;
 	private currentPlant: number = NO_PLANT;
-	private seeds: Map<number, number>;
-	private grownPlants: Map<number, number>;
 
 	/**
 	 * @function Loads the player avatar image. Must be called before creating any Player instances.
@@ -32,39 +31,138 @@ export default class Player {
 	 * @param canvas The canvas element on which the player will be drawn.
 	 * @param initialX The starting X-coordinate (in tiles) of the player.
 	 * @param initialY The starting Y-coordinate (in tiles) of the player.
+	 * @param mgr The state manager to store this player's data.
 	 * @function Constructs a new Player instance and initializes its position.
 	 */
-	constructor(canvas: HTMLCanvasElement, board: Board, tileSize: number, initialX: number, initialY: number) {
+	constructor(canvas: HTMLCanvasElement, board: Board, tileSize: number, initialX: number, initialY: number, mgr: StateManager) {
 		if (!Player.avatar) {
 			throw new Error("Player: Avatar image not loaded. Call Player.LoadAvatar() first.");
 		}
 		this.canvas = canvas;
 		this.board = board;
+		this.StateMGR = mgr;
 		this.tileSize = tileSize;
 		this.x = initialX * tileSize;
 		this.y = initialY * tileSize;
 		this.setupKeyboardListeners();
 
-		this.seeds = new Map<number, number>();
-		this.grownPlants = new Map<number, number>();
+		this.crops = new Map<number, number>();
 		this.initInventory();
 	}
 
-	// -------- Property Getters --------
+	// -------- Property Getters/Setters --------
 	/**
 	 * Get the current X-coordinate of the player in pixels.
 	 */
-	public get positionX(): number {
-		return this.x;
+	public get x(): number {
+		const bv = this.StateMGR.player;
+		return bv.getFloat64(0);
 	}
-
+	/**
+	 * Set the current X-coordinate of the player in pixels.
+	 */
+	public set x(value: number) {
+		const bv = this.StateMGR.player;
+		bv.setFloat64(0, value);
+	}
 	/**
 	 * Get the current Y-coordinate of the player in pixels.
 	 */
-	public get positionY(): number {
-		return this.y;
+	public get y(): number {
+		const bv = this.StateMGR.player;
+		return bv.getFloat64(64);
+	}
+	/**
+	 * Set the current X-coordinate of the player in pixels.
+	 */
+	public set y(value: number) {
+		const bv = this.StateMGR.player;
+		bv.setFloat64(64, value);
+	}
+	/**
+	 * Sets the player's reference for tile size.
+	 */
+	public set tileSize(value: number) {
+		const bv = this.StateMGR.player;
+		bv.setFloat64(128, value);
+	}
+	/**
+	 * Get the player's reference for tile size.
+	 */
+	public get tileSize(): number {
+		const bv = this.StateMGR.player;
+		return bv.getFloat64(128);
+	}
+	/**
+	 * Get the player's currently held seeds.
+	 */
+	public get seeds(): Map<number, number> {
+		const bv = this.StateMGR.player;
+		const MainOffset = 192;
+		const mapped = new Map<number, number>();
+		for (let i = 0; i < Plant.numPlants; i++) {
+			let miniOffset = i * floatSize * 2;
+			const kp = { key: bv.getFloat64(MainOffset + miniOffset), value: bv.getFloat64(MainOffset + miniOffset + floatSize) };
+			if (kp.key != NO_PLANT) {
+				mapped.set(kp.key, kp.value);
+			}
+		}
+		return mapped;
+	}
+	/**
+	 * Set the player's currently held seeds.
+	 */
+	public set seeds(seeds: Map<number, number>) {
+		const bv = this.StateMGR.player;
+		const MainOffset = 192;
+		const pairs = Array.from(seeds, ([key, value]) => ({ key, value }));
+		for (let i = 0; i < Plant.numPlants; i++) {
+			const miniOffset = i * floatSize * 2;
+			if (i < seeds.size) {
+				bv.setFloat64(MainOffset + miniOffset, pairs[i].key);
+				bv.setFloat64(MainOffset + miniOffset + floatSize, pairs[i].value);
+			} else {
+				bv.setFloat64(MainOffset + miniOffset, NO_PLANT);
+				bv.setFloat64(MainOffset + miniOffset + floatSize, 0);
+			}
+		}
+	}
+	/**
+	 * Get the player's currently held crops.
+	 */
+	public get crops(): Map<number, number> {
+		const bv = this.StateMGR.player;
+		const MainOffset = 192 + Plant.numPlants * 2 * floatSize;
+		const mapped = new Map<number, number>();
+		for (let i = 0; i < Plant.numPlants; i++) {
+			const miniOffset = i * floatSize * 2;
+			const kp = { key: bv.getFloat64(MainOffset + miniOffset), value: bv.getFloat64(MainOffset + miniOffset + floatSize) };
+			if (kp.key != NO_PLANT) {
+				mapped.set(kp.key, kp.value);
+			}
+		}
+		return mapped;
+	}
+	/**
+	 * Set the player's currently held seeds.
+	 */
+	public set crops(crops: Map<number, number>) {
+		const bv = this.StateMGR.player;
+		const MainOffset = 192 + Plant.numPlants * 2 * floatSize;
+		const pairs = Array.from(crops, ([key, value]) => ({ key, value }));
+		for (let i = 0; i < Plant.numPlants; i++) {
+			const miniOffset = i * floatSize * 2;
+			if (i < crops.size) {
+				bv.setFloat64(MainOffset + miniOffset, pairs[i].key);
+				bv.setFloat64(MainOffset + miniOffset + floatSize, pairs[i].value);
+			} else {
+				bv.setFloat64(MainOffset + miniOffset, NO_PLANT);
+				bv.setFloat64(MainOffset + miniOffset + floatSize, 0);
+			}
+		}
 	}
 
+	// ---------- Public functions ------------
 	/**
 	 * Draws the player avatar at the current position on the canvas.
 	 */
@@ -134,13 +232,19 @@ export default class Player {
 	}
 
 	private initInventory() {
-		this.seeds.set(0, 3);
-		this.seeds.set(1, 3);
-		this.seeds.set(2, 3);
+		const tempSeed = new Map<number, number>();
+		tempSeed.set(0, 3);
+		tempSeed.set(1, 3);
+		tempSeed.set(2, 3);
+		this.seeds = tempSeed;
+
+		const tempCrops = new Map<number,number>();
+		this.crops = tempCrops;
 		this.currentPlant = 0;
 	}
 	private attemptToSow() {
-		const currSeeds = this.seeds.get(this.currentPlant);
+		const tempSeeds = this.seeds;
+		const currSeeds = tempSeeds.get(this.currentPlant);
 		if (currSeeds && currSeeds > 0) {
 			const success = this.board.Sow(
 				{
@@ -150,7 +254,8 @@ export default class Player {
 				this.currentPlant
 			);
 			if (success) {
-				this.seeds.set(this.currentPlant, currSeeds - 1);
+				tempSeeds.set(this.currentPlant, currSeeds - 1);
+				this.seeds = tempSeeds;
 			}
 		}
 	}
@@ -164,10 +269,14 @@ export default class Player {
 				if (r.toString().includes("Seed")) {
 					const val = parseInt(r.slice(0, -4));
 					const currSeeds: number = this.seeds.get(val) ? this.seeds.get(val)! : 0;
-					this.seeds.set(val, currSeeds + 1);
+					const tmp = this.seeds;
+					tmp.set(val, currSeeds + 1);
+					this.seeds = tmp;
 				} else {
-					const currPlants = this.grownPlants.get(parseInt(r)) ? this.grownPlants.get(parseInt(r))! : 0;
-					this.grownPlants.set(parseInt(r), currPlants + 1);
+					const currPlants = this.crops.get(parseInt(r)) ? this.crops.get(parseInt(r))! : 0;
+					const tmp = this.crops;
+					tmp.set(parseInt(r), currPlants + 1);
+					this.crops = tmp;
 				}
 			});
 		}
@@ -194,23 +303,25 @@ export default class Player {
 	}
 	public requestInventoryContents(): string {
 		let retVal = `Seeds: <br>`;
-		this.seeds.forEach((val, key) => {
+		const tmpSeeds = this.seeds;
+		tmpSeeds.forEach((val, key) => {
 			retVal += `&ensp;${Plant.name(key)}: ${val}<br>`;
 		});
 		retVal += "Crops:<br>";
-		this.grownPlants.forEach((val, key) => {
+		this.crops.forEach((val, key) => {
 			retVal += `&ensp;${Plant.name(key)}: ${val}<br>`;
 		});
 
 		return retVal;
 	}
-    public checkWinCon():boolean{ //MESSY
-        const wh = this.grownPlants.get(0);
-        const co = this.grownPlants.get(1);
-        const ri = this.grownPlants.get(2);
-        if( wh && wh >= 10 && co && co >= 10 && ri && ri >=10){
-            return true;
-        }
-        return false;
-    }
+	public checkWinCon(): boolean {
+		//MESSY
+		const wh = this.crops.get(0);
+		const co = this.crops.get(1);
+		const ri = this.crops.get(2);
+		if (wh && wh >= 10 && co && co >= 10 && ri && ri >= 10) {
+			return true;
+		}
+		return false;
+	}
 }
