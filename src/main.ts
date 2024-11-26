@@ -1,6 +1,7 @@
 import Board from "./board.ts";
 import Player from "./player.ts";
 import Time from "./time.ts";
+import StateManager from "./save.ts";
 
 /**
  * @constant APP_NAME The name of the application displayed in the title and header.
@@ -43,8 +44,11 @@ const main = () => {
 	// Load player avatar
 	Player.LoadAvatar();
 
+	//Create State Manager
+	const StateMGR = new StateManager({rows:GRID_HEIGHT, cols:GRID_WIDTH})
+
 	// Instantiate the board
-	const board = new Board(GRID_WIDTH, GRID_HEIGHT);
+	const board = new Board(GRID_WIDTH, GRID_HEIGHT, StateMGR);
 
 	// Instantiate the player
 	const player = new Player(canvas, board, TILE_SIZE, 5, 5); // Starting at tile (5, 5);

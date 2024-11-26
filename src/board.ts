@@ -1,4 +1,5 @@
 import Plant, { NO_PLANT, GLOBAL_FRIEND_RATE } from "./plant";
+import StateManager, { TileDataSize } from "./save";
 
 /**
  * @enum TILETYPE the basic enum determining the current state of a Tile
@@ -28,10 +29,7 @@ export interface Cell {
 	row: number;
 	col: number;
 }
-/**
- * @constant The size of 1 (one) float64
- */
-const floatSize = 64;
+
 /**
  * @class Tile contains content, sun and water levels, and potential plant data at a [row, col] position.
  */
@@ -54,27 +52,6 @@ export class Tile {
 	}
 	//POTENTIAL TODO: setters and getters that trigger a write to the board.
 }
-/**
- * @constant The size of a Tile data structure, in bits
- */
-const TileDataSize = floatSize * 7;
-
-/**
- * Additional points of data we need to store
- * Currently:
- * @float cols
- * @float rows
- * @float sunPosition
- */
-interface staticBoardData{
-	cols:number,
-	rows:number,
-	sunPosition:number
-}
- /**
- * @constant The size of additional static board data, in bytes
- */
-const addlData = floatSize * 3;
 
 /**
  * @class Board contains a [row, col] array of Tiles, and the functionality to access and manipulate those tiles.
@@ -82,18 +59,20 @@ const addlData = floatSize * 3;
 export default class Board {
 	public readonly rows: number;
 	public readonly cols: number;
-	private board: ArrayBuffer;
+	private StateMGR: StateManager;
 
 	/**
 	 * @constructor Initialize an empty board.
 	 * @param cols Width of the board to initialize to. Cannot be changed once set.
 	 * @param rows Height of the board to initialize to. Cannot be changed once set.
+	 * @param mgr The state manager that this board will be using.
 	 */
-	constructor(cols: number, rows: number) {
+	constructor(cols: number, rows: number, mgr: StateManager) {
 		this.rows = rows;
 		this.cols = cols;
-		this.board = new ArrayBuffer(cols * rows * TileDataSize + addlData);
-		this.setColsAndRows(cols, rows);
+		this.StateMGR = mgr;
+
+		this.StateMGR.setColsAndRows(cols, rows);
 
 		this.Sun = this.cols - 1 + SUN_RANGE;
 		this.InitTiles();
@@ -188,22 +167,26 @@ export default class Board {
 
 		context.restore(); // Restore the drawing state
 	}
+	public get board() {
+		return this.StateMGR.board;
+	}
 
 	// -------- Public single-tile operations --------
 	/**
 	 * With tile information, sets data for a tile in the board byte array. As of right now, this needs to be called after modifying any temporary tile variable.
 	 */
 	public SetTile(t: Tile) {
+		const bv = this.StateMGR.board;
+
 		const MainOffset = (t.row * this.cols + t.col) * TileDataSize;
 
-		const bv = new DataView(this.board, MainOffset, TileDataSize);
-		bv.setFloat64(0, t.row);
-		bv.setFloat64(64, t.col);
-		bv.setFloat64(128, t.content);
-		bv.setFloat64(192, t.sun);
-		bv.setFloat64(256, t.water);
-		bv.setFloat64(320, t.plant);
-		bv.setFloat64(384, t.growth);
+		bv.setFloat64(MainOffset + 0, t.row);
+		bv.setFloat64(MainOffset + 64, t.col);
+		bv.setFloat64(MainOffset + 128, t.content);
+		bv.setFloat64(MainOffset + 192, t.sun);
+		bv.setFloat64(MainOffset + 256, t.water);
+		bv.setFloat64(MainOffset + 320, t.plant);
+		bv.setFloat64(MainOffset + 384, t.growth);
 	}
 	/**
 	 * With postition information, returns data of the board's byte array in Tile form.
@@ -215,14 +198,14 @@ export default class Board {
 		if (cell.row >= this.rows || cell.row < 0 || cell.col >= this.cols || cell.col < 0) {
 			return null;
 		}
+		const bv = this.StateMGR.board;
 		const MainOffset = (cell.row * this.cols + cell.col) * TileDataSize;
 
-		const bv = new DataView(this.board, MainOffset, TileDataSize);
-		const tmpContent = bv.getFloat64(128);
-		const tmpSun = bv.getFloat64(192);
-		const tmpWater = bv.getFloat64(256);
-		const tmpPlant = bv.getFloat64(320);
-		const tmpGrowth = bv.getFloat64(384);
+		const tmpContent = bv.getFloat64(MainOffset + 128);
+		const tmpSun = bv.getFloat64(MainOffset + 192);
+		const tmpWater = bv.getFloat64(MainOffset + 256);
+		const tmpPlant = bv.getFloat64(MainOffset + 320);
+		const tmpGrowth = bv.getFloat64(MainOffset + 384);
 
 		return { row: cell.row, col: cell.col, content: tmpContent, sun: tmpSun, water: tmpWater, plant: tmpPlant, growth: tmpGrowth };
 	}
@@ -343,12 +326,7 @@ export default class Board {
 	 * @param cols Width of the board to initialize to. Cannot be changed once set.
 	 * @param rows Height of the board to initialize to. Cannot be changed once set.
 	 */
-	private setColsAndRows(cols: number, rows: number) {
-		const MainOffset = this.rows * this.cols * TileDataSize;
-		const bv = new DataView(this.board, MainOffset, addlData);
-		bv.setFloat64(64, cols);
-		bv.setFloat64(128, rows);
-	}
+
 	/**
 	 *
 	 * @returns A 1-D array of Tiles that comprise the entire board.
@@ -453,16 +431,16 @@ export default class Board {
 	 */
 	public get Sun(): number {
 		const MainOffset = this.rows * this.cols * TileDataSize;
-		const bv = new DataView(this.board, MainOffset, floatSize);
-		return bv.getFloat64(0);
+		const bv = this.StateMGR.board;
+		return bv.getFloat64(MainOffset + 0);
 	}
 	/**
 	 * Sets the position of the sun in the byte array.
 	 */
 	private set Sun(value: number) {
 		const MainOffset = this.rows * this.cols * TileDataSize;
-		const bv = new DataView(this.board, MainOffset, floatSize);
-		bv.setFloat64(0, value);
+		const bv = this.StateMGR.board;
+		bv.setFloat64(MainOffset + 0, value);
 	}
 	/**
 	 * Moves the sun from right to left over the board.
@@ -496,16 +474,4 @@ export default class Board {
 		}
 	}
 	// -------- Data setting and saving funcions --------
-	public requestState():ArrayBuffer{
-		return this.board;
-	}
-	public setState(buff:ArrayBuffer, data:staticBoardData){
-		if(buff.byteLength != data.rows * data.cols * TileDataSize + addlData){
-			throw new Error("board instance: setState(): Bad arrayBuffer input: does not match correct size.")
-			return;
-		}
-
-		const bv = new DataView(buff, data.rows * data.cols * TileDataSize, addlData)
-		this.board = buff;
-	}
 }
