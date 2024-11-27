@@ -9,7 +9,7 @@ export interface saveData {
 /**
  * @constant The size of 1 (one) float64
  */
-export const floatSize = 64;
+export const floatSize = 8;
 /**
  * @constant The size of a Tile data structure, in bits
  */
@@ -60,8 +60,8 @@ export default class StateManager {
 	public setColsAndRows(cols: number, rows: number) {
 		const MainOffset = rows * cols * TileDataSize;
 		const bv = new DataView(this.stateBuffer, MainOffset, addlData);
-		bv.setFloat64(64, cols);
-		bv.setFloat64(128, rows);
+		bv.setFloat64(8, cols);
+		bv.setFloat64(16, rows);
 	}
 
 	public saveTo(slotID: number) {

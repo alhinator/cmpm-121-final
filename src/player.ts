@@ -70,35 +70,35 @@ export default class Player {
 	 */
 	public get y(): number {
 		const bv = this.StateMGR.player;
-		return bv.getFloat64(64);
+		return bv.getFloat64(8);
 	}
 	/**
 	 * Set the current X-coordinate of the player in pixels.
 	 */
 	public set y(value: number) {
 		const bv = this.StateMGR.player;
-		bv.setFloat64(64, value);
+		bv.setFloat64(8, value);
 	}
 	/**
 	 * Sets the player's reference for tile size.
 	 */
 	public set tileSize(value: number) {
 		const bv = this.StateMGR.player;
-		bv.setFloat64(128, value);
+		bv.setFloat64(16, value);
 	}
 	/**
 	 * Get the player's reference for tile size.
 	 */
 	public get tileSize(): number {
 		const bv = this.StateMGR.player;
-		return bv.getFloat64(128);
+		return bv.getFloat64(16);
 	}
 	/**
 	 * Get the player's currently held seeds.
 	 */
 	public get seeds(): Map<number, number> {
 		const bv = this.StateMGR.player;
-		const MainOffset = 192;
+		const MainOffset = 24;
 		const mapped = new Map<number, number>();
 		for (let i = 0; i < Plant.numPlants; i++) {
 			let miniOffset = i * floatSize * 2;
@@ -114,7 +114,7 @@ export default class Player {
 	 */
 	public set seeds(seeds: Map<number, number>) {
 		const bv = this.StateMGR.player;
-		const MainOffset = 192;
+		const MainOffset = 24;
 		const pairs = Array.from(seeds, ([key, value]) => ({ key, value }));
 		for (let i = 0; i < Plant.numPlants; i++) {
 			const miniOffset = i * floatSize * 2;
@@ -132,7 +132,7 @@ export default class Player {
 	 */
 	public get crops(): Map<number, number> {
 		const bv = this.StateMGR.player;
-		const MainOffset = 192 + Plant.numPlants * 2 * floatSize;
+		const MainOffset = 24 + Plant.numPlants * 2 * floatSize;
 		const mapped = new Map<number, number>();
 		for (let i = 0; i < Plant.numPlants; i++) {
 			const miniOffset = i * floatSize * 2;
@@ -148,7 +148,7 @@ export default class Player {
 	 */
 	public set crops(crops: Map<number, number>) {
 		const bv = this.StateMGR.player;
-		const MainOffset = 192 + Plant.numPlants * 2 * floatSize;
+		const MainOffset = 24 + Plant.numPlants * 2 * floatSize;
 		const pairs = Array.from(crops, ([key, value]) => ({ key, value }));
 		for (let i = 0; i < Plant.numPlants; i++) {
 			const miniOffset = i * floatSize * 2;
