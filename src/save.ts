@@ -74,12 +74,23 @@ export default class StateManager {
 		this.stateBuffer = new Uint8Array(arr).buffer;
 	}
 
+	public hasSlot(slotID: number|string): boolean {
+		return localStorage.getItem("game_save_" + slotID) !== null;
+	}
+
+	public removeSlot(slotID: number|string) {
+		localStorage.removeItem("game_save_" + slotID);
+	}
+
 	public getSlots(): number[] {
 		let slots: number[] = [];
 		for(let i = 0; i < localStorage.length; i++){
 			let key = localStorage.key(i)!;
 			if(key.startsWith("game_save_")) {
-				slots.push(parseInt(key.substring("game_save_".length)))
+				let id = parseInt(key.substring("game_save_".length));
+				if(!isNaN(id)) {
+					slots.push(id);
+				}
 			}
 		}
 		return slots.sort();

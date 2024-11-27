@@ -22,9 +22,20 @@ const GRID_HEIGHT = 18;
 
 let currentSaveSlot = -1;
 
-
 function refreshSaveUI(stateMGR: StateManager, container: HTMLDivElement) {
 	container.innerHTML = ""; // Clear the container
+
+	if(stateMGR.hasSlot("autosave")) {
+		const autosaveBtn = document.createElement("button");
+		autosaveBtn.style.display = "block";
+		autosaveBtn.innerHTML = "Load autosave";
+		autosaveBtn.addEventListener("click", () => {
+			stateMGR.loadFrom("autosave");
+			currentSaveSlot = -1;
+			refreshSaveUI(stateMGR, container);
+		});
+		container.append(autosaveBtn);
+	}
 
 	let slots = stateMGR.getSlots();
 	slots.forEach((slot) => {
