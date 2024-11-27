@@ -65,11 +65,13 @@ export default class StateManager {
 	}
 
 	public saveTo(slotID: number) {
-		localStorage.setItem("game_save_" + slotID, new TextDecoder().decode(this.stateBuffer));
+		const arr = Array.from(new Uint8Array(this.stateBuffer));
+		localStorage.setItem("game_save_" + slotID, JSON.stringify(arr));
 	}
 
 	public loadFrom(slotID: number) {
-		this.stateBuffer = new TextEncoder().encode(localStorage.getItem("game_save_" + slotID)!).buffer;
+		const arr = JSON.parse(localStorage.getItem("game_save_" + slotID)!);
+		this.stateBuffer = new Uint8Array(arr).buffer;
 	}
 
 	public getSlots(): number[] {
