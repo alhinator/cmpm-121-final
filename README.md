@@ -92,11 +92,13 @@ Team Goal: Our goal as a team is to create a command-line game (accomplished eit
 
 ### F0[a-e] - Same as last week.
 
-## [F1.a] The important state of your game's grid must be backed by a single contiguous byte array in AoS or SoA format. If your game stores the grid state in multiple format, the byte array format must be the primary format (i.e. other formats are decoded from it as needed).
+### [F1.a] The important state of your game's grid must be backed by a single contiguous byte array in AoS or SoA format. If your game stores the grid state in multiple format, the byte array format must be the primary format (i.e. other formats are decoded from it as needed).
 
 ![](public/GameStateDataStructure.png)
 
--    (alhinator) Our game state is stored in an ArrayBuffer object in SoAoS format. It is considered a single large structure that contains the following structures and array:
+(alhinator)
+
+-    Our game state is stored in an ArrayBuffer object in SoAoS format. It is considered a single large structure that contains the following structures and array:
 -    Board, which is an Array of Tile structures. This section contains the data for each individual tile on the board.
 -    BoardData, which contains the generic, non-tile-specific data for the board.
 -    PlayerData, which contains the player's position, inventory, and necessary reference variables.
