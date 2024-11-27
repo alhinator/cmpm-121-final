@@ -31,7 +31,9 @@ Team Goal: Our goal as a team is to create a command-line game (accomplished eit
 ## How we satisfied the software requirements
 
 ### [F0.a] You control a character moving over a 2D grid.
+
 (Hunter Tran)
+
 -    The player can move about the 2D grid using WASD for movement controls.
 
 (Ben Hess)
@@ -39,10 +41,19 @@ Team Goal: Our goal as a team is to create a command-line game (accomplished eit
 -    The grid is drawn each frame via the Board.draw function
 
 ### [F0.b] You advance time manually in the turn-based simulation.
+
 (Hunter Tran)
+
 -    A turn system with a turn GUI denoting the game's current turn allows the player to increment the game's turn manually by pressing a button.
 
 ### [F0.c] You can reap or sow plants on grid cells only when you are near them.
+
+(alhinator)
+The player can affect the tile vertically below them with the following operations:
+
+-    X to sow
+-    Z to reap
+-    C to switch between seeds
 
 ### [F0.d] Grid cells have sun and water levels. The incoming sun and water for each cell is somehow randomly generated each turn. Sun energy cannot be stored in a cell (it is used immediately or lost) while water moisture can be slowly accumulated over several turns.
 
@@ -110,5 +121,9 @@ Team Goal: Our goal as a team is to create a command-line game (accomplished eit
 ### [F1.b] The player must be able to manually save their progress in the game. This must allow them to load state and continue play another day (i.e. after quitting the game app). The player must be able to manage multiple save files/slots.
 
 ### [F1.c] The game must implement an implicit auto-save system to support recovery from unexpected quits. (For example, when the game is launched, if an auto-save entry is present, the game might ask the player "do you want to continue where you left off?" The auto-save entry might or might not be visible among the list of manual save entries available for the player to load as part of F1.b.)
+
+(alhinator)
+
+-    Every time the player presses the button to advance time, the game autosaves to a special slot that is overwritten with every autosave. The player may load the most recently autosaved state by clicking the "load autosave" button.
 
 ### [F1.d] The player must be able to undo every major choice (all the way back to the start of play), even from a saved game. They should be able to redo (undo of undo operations) multiple times.
