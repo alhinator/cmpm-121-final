@@ -2,7 +2,7 @@ import Player from "./player";
 import Plant from "./plant";
 
 export interface saveData {
-	boardState: ArrayBuffer;
+	boardState: DataView;
 	playerState: Player;
 }
 
@@ -64,15 +64,31 @@ export default class StateManager {
 		bv.setFloat64(128, rows);
 	}
 
-	// ------- Static save/load to localstorage -------
-	public static SaveTo(slotID: string, data: saveData) {
-		localStorage.setItem(slotID, JSON.stringify(data));
+	public saveTo(slotID: number) {
+		localStorage.setItem("game_save_" + slotID, new TextDecoder().decode(this.stateBuffer));
 	}
-	public static LoadFrom(slotID: string): saveData | null {
-		if (!localStorage.getItem(slotID)) {
-			return null;
-		} else {
-			return JSON.parse(localStorage.getItem(slotID)!);
+
+	public loadFrom(slotID: number) {
+		this.stateBuffer = new TextEncoder().encode(localStorage.getItem("game_save_" + slotID)!).buffer;
+	}
+
+	public getSlots(): number[] {
+		let slots: number[] = [];
+		for(let i = 0; i < localStorage.length; i++){
+			let key = localStorage.key(i)!;
+			if(key.startsWith("game_save_")) {
+				slots.push(parseInt(key.substring("game_save_".length)))
+			}
 		}
+		return slots.sort();
+	}
+
+	public getOpenSlotId(): number {
+		let id = 0;
+		let slots = this.getSlots();
+		while(slots.includes(id)) {
+			id++;
+		}
+		return id;
 	}
 }

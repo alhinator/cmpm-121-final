@@ -20,6 +20,45 @@ const TILE_SIZE = 32;
 const GRID_WIDTH = 25;
 const GRID_HEIGHT = 18;
 
+let currentSaveSlot = -1;
+
+
+function refreshSaveUI(stateMGR: StateManager, container: HTMLDivElement) {
+	container.innerHTML = ""; // Clear the container
+
+	let slots = stateMGR.getSlots();
+	slots.forEach((slot) => {
+		const btn = document.createElement("button");
+		btn.style.display = "block";
+		if(slot == currentSaveSlot) {
+			btn.innerHTML = "Save #" + slot;
+			btn.addEventListener("click", () => {
+				stateMGR.saveTo(slot);
+				refreshSaveUI(stateMGR, container);
+			});
+		} else {
+			btn.innerHTML = "Load #" + slot;
+			btn.addEventListener("click", () => {
+				stateMGR.loadFrom(slot);
+				currentSaveSlot = slot;
+				refreshSaveUI(stateMGR, container);
+			});
+		}
+		container.append(btn);
+	});
+
+	const saveBtn = document.createElement("button");
+	saveBtn.style.display = "block";
+	const openSlotId = stateMGR.getOpenSlotId();
+	saveBtn.innerHTML = "New Save";
+	saveBtn.addEventListener("click", () => {
+		stateMGR.saveTo(openSlotId);
+		currentSaveSlot = openSlotId;
+		refreshSaveUI(stateMGR, container);
+	});
+	container.append(saveBtn);
+}
+
 /**
  * Main game setup and loop.
  */
@@ -63,6 +102,10 @@ const main = () => {
 	const win = document.createElement("h1");
 	win.innerText = "";
 	app.appendChild(win);
+
+	let saveContainer = document.createElement("div");
+	app.append(saveContainer);
+	refreshSaveUI(StateMGR, saveContainer);
 
 	// Initialize time module
 	Time.initialize(app, board);
