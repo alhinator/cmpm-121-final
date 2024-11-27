@@ -181,12 +181,12 @@ export default class Board {
 		const MainOffset = (t.row * this.cols + t.col) * TileDataSize;
 
 		bv.setFloat64(MainOffset + 0, t.row);
-		bv.setFloat64(MainOffset + 64, t.col);
-		bv.setFloat64(MainOffset + 128, t.content);
-		bv.setFloat64(MainOffset + 192, t.sun);
-		bv.setFloat64(MainOffset + 256, t.water);
-		bv.setFloat64(MainOffset + 320, t.plant);
-		bv.setFloat64(MainOffset + 384, t.growth);
+		bv.setFloat64(MainOffset + 8, t.col);
+		bv.setFloat64(MainOffset + 16, t.content);
+		bv.setFloat64(MainOffset + 24, t.sun);
+		bv.setFloat64(MainOffset + 32, t.water);
+		bv.setFloat64(MainOffset + 40, t.plant);
+		bv.setFloat64(MainOffset + 48, t.growth);
 	}
 	/**
 	 * With postition information, returns data of the board's byte array in Tile form.
@@ -201,11 +201,11 @@ export default class Board {
 		const bv = this.StateMGR.board;
 		const MainOffset = (cell.row * this.cols + cell.col) * TileDataSize;
 
-		const tmpContent = bv.getFloat64(MainOffset + 128);
-		const tmpSun = bv.getFloat64(MainOffset + 192);
-		const tmpWater = bv.getFloat64(MainOffset + 256);
-		const tmpPlant = bv.getFloat64(MainOffset + 320);
-		const tmpGrowth = bv.getFloat64(MainOffset + 384);
+		const tmpContent = bv.getFloat64(MainOffset + 16);
+		const tmpSun = bv.getFloat64(MainOffset + 24);
+		const tmpWater = bv.getFloat64(MainOffset + 32);
+		const tmpPlant = bv.getFloat64(MainOffset + 40);
+		const tmpGrowth = bv.getFloat64(MainOffset + 48);
 
 		return { row: cell.row, col: cell.col, content: tmpContent, sun: tmpSun, water: tmpWater, plant: tmpPlant, growth: tmpGrowth };
 	}

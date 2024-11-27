@@ -9,7 +9,7 @@ export interface saveData {
 /**
  * @constant The size of 1 (one) float64
  */
-export const floatSize = 64;
+export const floatSize = 8;
 /**
  * @constant The size of a Tile data structure, in bits
  */
@@ -60,16 +60,19 @@ export default class StateManager {
 	public setColsAndRows(cols: number, rows: number) {
 		const MainOffset = rows * cols * TileDataSize;
 		const bv = new DataView(this.stateBuffer, MainOffset, addlData);
-		bv.setFloat64(64, cols);
-		bv.setFloat64(128, rows);
+		bv.setFloat64(8, cols);
+		bv.setFloat64(16, rows);
 	}
 
 	public saveTo(slotID: number) {
-		localStorage.setItem("game_save_" + slotID, new TextDecoder().decode(this.stateBuffer));
+		const data_to_string = new TextDecoder().decode(this.stateBuffer)
+		console.log(data_to_string);
+		localStorage.setItem("game_save_" + slotID, data_to_string);
 	}
 
 	public loadFrom(slotID: number) {
-		this.stateBuffer = new TextEncoder().encode(localStorage.getItem("game_save_" + slotID)!).buffer;
+		const string_to_data = new TextEncoder().encode(localStorage.getItem("game_save_" + slotID)!);
+		this.stateBuffer = string_to_data.buffer;
 	}
 
 	public getSlots(): number[] {
