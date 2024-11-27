@@ -85,3 +85,18 @@ Team Goal: Our goal as a team is to create a command-line game (accomplished eit
 -    (Ben Hess) I've really enjoyed this project so far. I enjoy doing graphics/visual elements of software and that has been my primary task so far. I think our team's coding standards are good and we have all been contributing significantly to the project. I think some reorganization of the way we abstract different components of the project might be necessary in the future, but I think we've generally done a good job at not making changes too difficult.
 
 -    (Hunter Tran) I've enjoyed working on this project so far, it is really satisfying having such great teammates who have helped push their individaul works and seeing it all come together. So far, I feel that the core pieecs of the games are starting to work well, and after this stage of the project, I hope to refine what's been added to the game thus far by changing the visual representations of the core game elements to make sure we stick to our original intent to design an ASCII style game (hopefully).
+
+# F1 Devlog 27 Nov 2024
+
+## How we satisfied the software requirements
+
+### F0[a-e] - Same as last week.
+
+## [F1.a] The important state of your game's grid must be backed by a single contiguous byte array in AoS or SoA format. If your game stores the grid state in multiple format, the byte array format must be the primary format (i.e. other formats are decoded from it as needed).
+
+![](public\GameStateDataStructure.png)
+
+-    (alhinator) Our game state is stored in an ArrayBuffer object in SoAoS format. It is considered a single large structure that contains the following structures and array:
+-    Board, which is an Array of Tile structures. This section contains the data for each individual tile on the board.
+-    BoardData, which contains the generic, non-tile-specific data for the board.
+-    PlayerData, which contains the player's position, inventory, and necessary reference variables.
