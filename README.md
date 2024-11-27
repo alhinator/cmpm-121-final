@@ -31,12 +31,16 @@ Team Goal: Our goal as a team is to create a command-line game (accomplished eit
 ## How we satisfied the software requirements
 
 ### [F0.a] You control a character moving over a 2D grid.
+(Hunter Tran)
+-    The player can move about the 2D grid using WASD for movement controls.
 
 (Ben Hess)
 
 -    The grid is drawn each frame via the Board.draw function
 
 ### [F0.b] You advance time manually in the turn-based simulation.
+(Hunter Tran)
+-    A turn system with a turn GUI denoting the game's current turn allows the player to increment the game's turn manually by pressing a button.
 
 ### [F0.c] You can reap or sow plants on grid cells only when you are near them.
 
