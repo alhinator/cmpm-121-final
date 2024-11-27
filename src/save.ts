@@ -64,12 +64,12 @@ export default class StateManager {
 		bv.setFloat64(16, rows);
 	}
 
-	public saveTo(slotID: number) {
+	public saveTo(slotID: number|string) {
 		const arr = Array.from(new Uint8Array(this.stateBuffer));
 		localStorage.setItem("game_save_" + slotID, JSON.stringify(arr));
 	}
 
-	public loadFrom(slotID: number) {
+	public loadFrom(slotID: number|string) {
 		const arr = JSON.parse(localStorage.getItem("game_save_" + slotID)!);
 		this.stateBuffer = new Uint8Array(arr).buffer;
 	}

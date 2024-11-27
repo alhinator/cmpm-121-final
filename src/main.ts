@@ -108,7 +108,7 @@ const main = () => {
 	refreshSaveUI(StateMGR, saveContainer);
 
 	// Initialize time module
-	Time.initialize(app, board);
+	Time.initialize(app, board, StateMGR);
 
 	// Game loop
 	const gameLoop = () => {

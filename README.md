@@ -94,7 +94,7 @@ Team Goal: Our goal as a team is to create a command-line game (accomplished eit
 
 ### [F1.a] The important state of your game's grid must be backed by a single contiguous byte array in AoS or SoA format. If your game stores the grid state in multiple format, the byte array format must be the primary format (i.e. other formats are decoded from it as needed).
 
-![](public/GameStateDataStructure.png)
+![](public/UpdatedStructureImg.png)
 
 (alhinator)
 
@@ -102,3 +102,9 @@ Team Goal: Our goal as a team is to create a command-line game (accomplished eit
 -    Board, which is an Array of Tile structures. This section contains the data for each individual tile on the board.
 -    BoardData, which contains the generic, non-tile-specific data for the board.
 -    PlayerData, which contains the player's position, inventory, and necessary reference variables.
+
+### [F1.b] The player must be able to manually save their progress in the game. This must allow them to load state and continue play another day (i.e. after quitting the game app). The player must be able to manage multiple save files/slots.
+
+### [F1.c] The game must implement an implicit auto-save system to support recovery from unexpected quits. (For example, when the game is launched, if an auto-save entry is present, the game might ask the player "do you want to continue where you left off?" The auto-save entry might or might not be visible among the list of manual save entries available for the player to load as part of F1.b.)
+
+### [F1.d] The player must be able to undo every major choice (all the way back to the start of play), even from a saved game. They should be able to redo (undo of undo operations) multiple times.

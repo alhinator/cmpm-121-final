@@ -1,4 +1,5 @@
 import Board from "./board";
+import StateManager from "./save";
 
 /**
  * @constant INITIAL_TURN The starting value for the turn counter.
@@ -12,13 +13,15 @@ export default class Time {
     private static turn: number = INITIAL_TURN;
     private static header: HTMLHeadingElement | null = null;
     private static board: Board;
+    private static stateMGR:StateManager
 
     /**
      * Initializes the turn counter and adds a button to advance the turn.
      * @param app The parent container where the elements will be appended.
      */
-    public static initialize(app: HTMLDivElement, board: Board): void {
+    public static initialize(app: HTMLDivElement, board: Board, stateMGR:StateManager): void {
         this.board = board;
+        this.stateMGR = stateMGR;
 
         // Create and append the turn header
         this.header = document.createElement("h1");
@@ -34,6 +37,7 @@ export default class Time {
         // Attach event listener to increment the turn
         turnButton.addEventListener("click", () => {
             this.incrementTurn();
+            this.stateMGR.saveTo("autosave");
         });
     }
 
