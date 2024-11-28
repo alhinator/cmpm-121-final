@@ -120,10 +120,25 @@ The player can affect the tile vertically below them with the following operatio
 
 ### [F1.b] The player must be able to manually save their progress in the game. This must allow them to load state and continue play another day (i.e. after quitting the game app). The player must be able to manage multiple save files/slots.
 
+(Ben Hess)
+
+-    The game's UI includes buttons for each of the currently saved game slots plus a button to save the game to a new slot.
+-    When a button is pressed initially, it loads the game in that slot from local storage. The button for the currently loaded slot will save the current game in that slot.
+
 ### [F1.c] The game must implement an implicit auto-save system to support recovery from unexpected quits. (For example, when the game is launched, if an auto-save entry is present, the game might ask the player "do you want to continue where you left off?" The auto-save entry might or might not be visible among the list of manual save entries available for the player to load as part of F1.b.)
 
 (alhinator)
 
 -    Every time the player presses the button to advance time, the game autosaves to a special slot that is overwritten with every autosave. The player may load the most recently autosaved state by clicking the "load autosave" button.
 
+(Ben Hess)
+
+-    The game's UI includes a "Load autosave" which is visible if an auto save exists in local storage. When the button is pressed, the autosave is loaded as the current game state and can be saved.
+
 ### [F1.d] The player must be able to undo every major choice (all the way back to the start of play), even from a saved game. They should be able to redo (undo of undo operations) multiple times.
+
+(Ben Hess)
+
+-    Each saved game is encoded as a turn number followed by a list of game states.
+-    The "Undo" and "Redo" buttons allow the player to move forward and backwards through this list of game states.
+-    When a turn is taken, all future game states are deleted and the new game state is added.
