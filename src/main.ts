@@ -24,6 +24,7 @@ let currentSaveSlot = -1;
 
 function refreshSaveUI(stateMGR: StateManager, container: HTMLDivElement) {
 	container.innerHTML = ""; // Clear the container
+	Time.update();
 
 	if(stateMGR.hasSlot("autosave")) {
 		const autosaveBtn = document.createElement("button");
@@ -103,6 +104,9 @@ const main = () => {
 	// Instantiate the player
 	const player = new Player(canvas, board, TILE_SIZE, 5, 5, StateMGR);
 
+	// Initialize time module
+	Time.initialize(app, board, StateMGR);
+
 	// MESSY CODE: REFACTOR LATER
 	//create and append the player inventory:
 	const inventory = document.createElement("p");
@@ -117,9 +121,6 @@ const main = () => {
 	let saveContainer = document.createElement("div");
 	app.append(saveContainer);
 	refreshSaveUI(StateMGR, saveContainer);
-
-	// Initialize time module
-	Time.initialize(app, board, StateMGR);
 
 	// Game loop
 	const gameLoop = () => {

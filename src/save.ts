@@ -41,22 +41,62 @@ export interface NontileBoardData {
 export default class StateManager {
 	private stateBuffer: ArrayBuffer;
 	private boardDataLength: number;
+	private turnDataLength: number;
 	/**
 	 *
 	 * @param data The nontile board data: number of rows and columns in the board.
 	 */
 	constructor(data: NontileBoardData) {
 		this.boardDataLength = data.rows * data.cols * TileDataSize + addlData;
-		this.stateBuffer = new ArrayBuffer(this.boardDataLength + PlayerDataSize);
+		this.turnDataLength = this.boardDataLength + PlayerDataSize;
+		this.stateBuffer = new ArrayBuffer(floatSize + this.turnDataLength);
+	}
+	public get turn(): number {
+		const bv = new DataView(this.stateBuffer);
+		return bv.getFloat64(0);
+	}
+	private get turnOffset(): number {
+		return floatSize + this.turn * this.turnDataLength;
 	}
 	public get board(): DataView {
-		const bv = new DataView(this.stateBuffer, 0, this.boardDataLength);
+		const bv = new DataView(this.stateBuffer, this.turnOffset, this.boardDataLength);
 		return bv;
 	}
 	public get player(): DataView {
-		const bv = new DataView(this.stateBuffer, this.boardDataLength, PlayerDataSize);
+		const bv = new DataView(this.stateBuffer, this.turnOffset + this.boardDataLength, PlayerDataSize);
 		return bv;
 	}
+
+	public incrementTurn() {
+		const pastBuffer = new Uint8Array(this.stateBuffer, 0, this.turnOffset);
+		const currentTurnBuffer = new Uint8Array(this.stateBuffer, this.turnOffset, this.turnDataLength);
+		this.stateBuffer = new Uint8Array([...pastBuffer, ...currentTurnBuffer, ...currentTurnBuffer]).buffer;
+		const bv = new DataView(this.stateBuffer);
+		bv.setFloat64(0, this.turn + 1);
+	}
+
+	public canUndo() : boolean {
+		return this.turn > 0;
+	}
+
+	public undo() {
+		if(this.canUndo()) {
+			const bv = new DataView(this.stateBuffer);
+			bv.setFloat64(0, this.turn - 1);
+		}
+	}
+	
+	public canRedo() {
+		return this.turnOffset + this.turnDataLength < this.stateBuffer.byteLength;
+	}
+
+	public redo() {
+		if(this.canRedo()) {
+			const bv = new DataView(this.stateBuffer);
+			bv.setFloat64(0, this.turn + 1);
+		}
+	}
+
 	public setColsAndRows(cols: number, rows: number) {
 		const MainOffset = rows * cols * TileDataSize;
 		const bv = new DataView(this.stateBuffer, MainOffset, addlData);
