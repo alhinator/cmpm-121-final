@@ -42,6 +42,7 @@ export default class StateManager {
 	private stateBuffer: ArrayBuffer;
 	private boardDataLength: number;
 	private turnDataLength: number;
+	private currentSlotId: number = -1;
 	/**
 	 *
 	 * @param data The nontile board data: number of rows and columns in the board.
@@ -73,6 +74,7 @@ export default class StateManager {
 		this.stateBuffer = new Uint8Array([...pastBuffer, ...currentTurnBuffer, ...currentTurnBuffer]).buffer;
 		const bv = new DataView(this.stateBuffer);
 		bv.setFloat64(0, this.turn + 1);
+		this.autosave();
 	}
 
 	public canUndo() : boolean {
@@ -83,6 +85,7 @@ export default class StateManager {
 		if(this.canUndo()) {
 			const bv = new DataView(this.stateBuffer);
 			bv.setFloat64(0, this.turn - 1);
+			this.autosave();
 		}
 	}
 	
@@ -94,6 +97,7 @@ export default class StateManager {
 		if(this.canRedo()) {
 			const bv = new DataView(this.stateBuffer);
 			bv.setFloat64(0, this.turn + 1);
+			this.autosave();
 		}
 	}
 
@@ -104,21 +108,74 @@ export default class StateManager {
 		bv.setFloat64(16, rows);
 	}
 
-	public saveTo(slotID: number|string) {
-		const arr = Array.from(new Uint8Array(this.stateBuffer));
-		localStorage.setItem("game_save_" + slotID, JSON.stringify(arr));
+	private getOpenSlotId(): number {
+		let id = 0;
+		let slots = this.getSlots();
+		while(slots.includes(id)) {
+			id++;
+		}
+		return id;
 	}
 
-	public loadFrom(slotID: number|string) {
+	public getCurrentSlotId() {
+		return this.currentSlotId;
+	}
+
+	public save() {
+		if(this.hasAutosave() && this.currentSlotId == this.getAutosaveSlot()) {
+			localStorage.removeItem("game_autosave");
+			localStorage.removeItem("game_autosave_slot");
+		}
+		if(this.currentSlotId < 0) {
+			this.currentSlotId = this.getOpenSlotId();
+		}
+		const arr = Array.from(new Uint8Array(this.stateBuffer));
+		localStorage.setItem("game_save_" + this.currentSlotId, JSON.stringify(arr));
+	}
+
+	public newSave() {
+		this.currentSlotId = -1;
+		this.save();
+	}
+
+	public autosave() {
+		const arr = Array.from(new Uint8Array(this.stateBuffer));
+		localStorage.setItem("game_autosave", JSON.stringify(arr));
+		localStorage.setItem("game_autosave_slot", JSON.stringify(this.currentSlotId));
+	}
+
+	public hasAutosave(): boolean {
+		return localStorage.getItem("game_autosave") !== null;
+	}
+
+	private getAutosaveSlot() : number {
+		if(!this.hasAutosave()) {
+			return -1;
+		} else {
+			return JSON.parse(localStorage.getItem("game_autosave_slot")!);
+		}
+	}
+
+	public loadFrom(slotID: number) {
 		const arr = JSON.parse(localStorage.getItem("game_save_" + slotID)!);
 		this.stateBuffer = new Uint8Array(arr).buffer;
+		this.currentSlotId = slotID;
 	}
 
-	public hasSlot(slotID: number|string): boolean {
+	public loadAutosave() {
+		if(this.hasAutosave()) {
+			const arr = JSON.parse(localStorage.getItem("game_autosave")!);
+			this.stateBuffer = new Uint8Array(arr).buffer;
+			this.currentSlotId = this.getAutosaveSlot();
+			this.save();
+		}
+	}
+
+	public hasSlot(slotID: number): boolean {
 		return localStorage.getItem("game_save_" + slotID) !== null;
 	}
 
-	public removeSlot(slotID: number|string) {
+	public removeSlot(slotID: number) {
 		localStorage.removeItem("game_save_" + slotID);
 	}
 
@@ -134,14 +191,5 @@ export default class StateManager {
 			}
 		}
 		return slots.sort();
-	}
-
-	public getOpenSlotId(): number {
-		let id = 0;
-		let slots = this.getSlots();
-		while(slots.includes(id)) {
-			id++;
-		}
-		return id;
 	}
 }

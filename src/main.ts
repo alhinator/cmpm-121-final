@@ -20,39 +20,24 @@ const TILE_SIZE = 32;
 const GRID_WIDTH = 25;
 const GRID_HEIGHT = 18;
 
-let currentSaveSlot = -1;
-
 function refreshSaveUI(stateMGR: StateManager, container: HTMLDivElement) {
 	container.innerHTML = ""; // Clear the container
 	Time.update();
-
-	if(stateMGR.hasSlot("autosave")) {
-		const autosaveBtn = document.createElement("button");
-		autosaveBtn.style.display = "block";
-		autosaveBtn.innerHTML = "Load autosave";
-		autosaveBtn.addEventListener("click", () => {
-			stateMGR.loadFrom("autosave");
-			currentSaveSlot = -1;
-			refreshSaveUI(stateMGR, container);
-		});
-		container.append(autosaveBtn);
-	}
 
 	let slots = stateMGR.getSlots();
 	slots.forEach((slot) => {
 		const btn = document.createElement("button");
 		btn.style.display = "block";
-		if(slot == currentSaveSlot) {
+		if(slot == stateMGR.getCurrentSlotId()) {
 			btn.innerHTML = "Save #" + slot;
 			btn.addEventListener("click", () => {
-				stateMGR.saveTo(slot);
+				stateMGR.save();
 				refreshSaveUI(stateMGR, container);
 			});
 		} else {
 			btn.innerHTML = "Load #" + slot;
 			btn.addEventListener("click", () => {
 				stateMGR.loadFrom(slot);
-				currentSaveSlot = slot;
 				refreshSaveUI(stateMGR, container);
 			});
 		}
@@ -61,11 +46,9 @@ function refreshSaveUI(stateMGR: StateManager, container: HTMLDivElement) {
 
 	const saveBtn = document.createElement("button");
 	saveBtn.style.display = "block";
-	const openSlotId = stateMGR.getOpenSlotId();
 	saveBtn.innerHTML = "New Save";
 	saveBtn.addEventListener("click", () => {
-		stateMGR.saveTo(openSlotId);
-		currentSaveSlot = openSlotId;
+		stateMGR.newSave();
 		refreshSaveUI(stateMGR, container);
 	});
 	container.append(saveBtn);
@@ -106,6 +89,16 @@ const main = () => {
 
 	// Initialize time module
 	Time.initialize(app, board, StateMGR);
+
+	if(StateMGR.hasAutosave()) {
+		let ans: string | null = null;
+		while(ans == null) {
+			ans = prompt("Would you like to continue where you left off? [Y/N]");
+		}
+		if(ans.toLowerCase().trimStart().charAt(0) == "y") {
+			StateMGR.loadAutosave();
+		}
+	}
 
 	// MESSY CODE: REFACTOR LATER
 	//create and append the player inventory:

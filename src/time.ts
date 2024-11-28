@@ -32,15 +32,13 @@ export default class Time {
 
         // Create and append the turn button
         const turnButton = document.createElement("button");
-        turnButton.id = "reset-game";
-        turnButton.innerHTML = "🚮";
+        turnButton.innerHTML = "Next Turn";
         app.append(turnButton);
 
         // Attach event listener to increment the turn
         turnButton.addEventListener("click", () => {
             this.stateMGR.incrementTurn();
             this.incrementTurn();
-            this.stateMGR.saveTo("autosave");
         });
 
         // Create and append the undo button
@@ -56,14 +54,12 @@ export default class Time {
         // Attach event listener to undo
         this.undoButton.addEventListener("click", () => {
             this.stateMGR.undo();
-            this.stateMGR.saveTo("autosave");
             this.update();
         });
 
         // Attach event listener to redo
         this.redoButton.addEventListener("click", () => {
             this.stateMGR.redo();
-            this.stateMGR.saveTo("autosave");
             this.update();
         });
 
