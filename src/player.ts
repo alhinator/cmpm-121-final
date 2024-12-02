@@ -234,10 +234,7 @@ export default class Player {
 	}
 
 	private initInventory() {
-		const tempSeed = new Map<number, number>();
-		tempSeed.set(0, 3);
-		tempSeed.set(1, 3);
-		tempSeed.set(2, 3);
+		const tempSeed = this.StateMGR.startSeedData;
 		this.seeds = tempSeed;
 
 		const tempCrops = new Map<number,number>();

@@ -85,6 +85,15 @@ export default class StateManager {
 		const bv = new DataView(this.stateBuffer, this.turnOffset + this.boardDataLength, PlayerDataSize);
 		return bv;
 	}
+	public get startSeedData():Map<number,number>{
+		const retVal = new Map<number, number>();
+		for(let i = 5; i < START_DATA.split(`\n`).length; i++){
+			const line:string[] = START_DATA.split(`\n`)[i].split(`,`);
+			retVal.set(parseInt(line[0]), parseInt(line[1]))
+			if(parseInt(line[0]) > Plant.numPlants){throw new Error("StateManager: startSeedData: Bad plant ID")}
+		}
+		return retVal;
+	}
 
 	public incrementTurn() {
 		const pastBuffer = new Uint8Array(this.stateBuffer, 0, this.turnOffset);
