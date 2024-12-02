@@ -321,7 +321,8 @@ export default class Player {
 		const wh = this.crops.get(0);
 		const co = this.crops.get(1);
 		const ri = this.crops.get(2);
-		if (wh && wh >= 10 && co && co >= 10 && ri && ri >= 10) {
+		const win = StateManager.SeedsToWin
+		if (wh && wh >= win && co && co >= win && ri && ri >= win) {
 			return true;
 		}
 		return false;

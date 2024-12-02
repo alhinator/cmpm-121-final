@@ -21,6 +21,17 @@ export const PlayerDataSize = floatSize * 4 + Plant.numPlants * floatSize * 4;
 /**
  * @constant The size of additional static board data, in bits
  */
+const START_DATA =
+	`0x20
+0xF
+0x4
+0.1
+0xA
+0, 3
+1, 3
+2, 3`
+
+
 export const addlData = floatSize * 3;
 /**
  * Additional points of data we need to store
@@ -34,7 +45,6 @@ export interface NontileBoardData {
 	rows: number;
 	sunPosition?: number;
 }
-
 /**
  * Maintains the save state of the board and player in a 1-D byte array.
  */
@@ -43,15 +53,23 @@ export default class StateManager {
 	private boardDataLength: number;
 	private turnDataLength: number;
 	private currentSlotId: number = -1;
+	public static readonly cols: number = parseInt(START_DATA.split(`\n`)[0]);
+	public static readonly rows: number = parseInt(START_DATA.split(`\n`)[1]);
+	public static readonly SunRange: number = parseInt(START_DATA.split(`\n`)[2]);
+	public static readonly WaterRate: number = parseFloat(START_DATA.split(`\n`)[3]);
+	public static readonly SeedsToWin: number = parseInt(START_DATA.split(`\n`)[4]);
+
 	/**
 	 *
 	 * @param data The nontile board data: number of rows and columns in the board.
 	 */
-	constructor(data: NontileBoardData) {
-		this.boardDataLength = data.rows * data.cols * TileDataSize + addlData;
+	constructor() {
+		this.startDataValidator();
+		this.boardDataLength = StateManager.rows * StateManager.cols * TileDataSize + addlData;
 		this.turnDataLength = this.boardDataLength + PlayerDataSize;
 		this.stateBuffer = new ArrayBuffer(floatSize + this.turnDataLength);
 	}
+
 	public get turn(): number {
 		const bv = new DataView(this.stateBuffer);
 		return bv.getFloat64(0);
@@ -77,24 +95,24 @@ export default class StateManager {
 		this.autosave();
 	}
 
-	public canUndo() : boolean {
+	public canUndo(): boolean {
 		return this.turn > 0;
 	}
 
 	public undo() {
-		if(this.canUndo()) {
+		if (this.canUndo()) {
 			const bv = new DataView(this.stateBuffer);
 			bv.setFloat64(0, this.turn - 1);
 			this.autosave();
 		}
 	}
-	
+
 	public canRedo() {
 		return this.turnOffset + this.turnDataLength < this.stateBuffer.byteLength;
 	}
 
 	public redo() {
-		if(this.canRedo()) {
+		if (this.canRedo()) {
 			const bv = new DataView(this.stateBuffer);
 			bv.setFloat64(0, this.turn + 1);
 			this.autosave();
@@ -111,7 +129,7 @@ export default class StateManager {
 	private getOpenSlotId(): number {
 		let id = 0;
 		let slots = this.getSlots();
-		while(slots.includes(id)) {
+		while (slots.includes(id)) {
 			id++;
 		}
 		return id;
@@ -122,11 +140,11 @@ export default class StateManager {
 	}
 
 	public save() {
-		if(this.hasAutosave() && this.currentSlotId == this.getAutosaveSlot()) {
+		if (this.hasAutosave() && this.currentSlotId == this.getAutosaveSlot()) {
 			localStorage.removeItem("game_autosave");
 			localStorage.removeItem("game_autosave_slot");
 		}
-		if(this.currentSlotId < 0) {
+		if (this.currentSlotId < 0) {
 			this.currentSlotId = this.getOpenSlotId();
 		}
 		const arr = Array.from(new Uint8Array(this.stateBuffer));
@@ -148,8 +166,8 @@ export default class StateManager {
 		return localStorage.getItem("game_autosave") !== null;
 	}
 
-	private getAutosaveSlot() : number {
-		if(!this.hasAutosave()) {
+	private getAutosaveSlot(): number {
+		if (!this.hasAutosave()) {
 			return -1;
 		} else {
 			return JSON.parse(localStorage.getItem("game_autosave_slot")!);
@@ -163,7 +181,7 @@ export default class StateManager {
 	}
 
 	public loadAutosave() {
-		if(this.hasAutosave()) {
+		if (this.hasAutosave()) {
 			const arr = JSON.parse(localStorage.getItem("game_autosave")!);
 			this.stateBuffer = new Uint8Array(arr).buffer;
 			this.currentSlotId = this.getAutosaveSlot();
@@ -181,15 +199,25 @@ export default class StateManager {
 
 	public getSlots(): number[] {
 		let slots: number[] = [];
-		for(let i = 0; i < localStorage.length; i++){
+		for (let i = 0; i < localStorage.length; i++) {
 			let key = localStorage.key(i)!;
-			if(key.startsWith("game_save_")) {
+			if (key.startsWith("game_save_")) {
 				let id = parseInt(key.substring("game_save_".length));
-				if(!isNaN(id)) {
+				if (!isNaN(id)) {
 					slots.push(id);
 				}
 			}
 		}
 		return slots.sort();
 	}
+	private startDataValidator() {
+		if (StateManager.rows < 0x1 || StateManager.rows > 0x20) { throw new Error("StateManager: startDataValidator: START_DATA bad rows.") }
+		if (StateManager.cols < 0x1 || StateManager.cols > 0x20) { throw new Error("StateManager: startDataValidator: START_DATA bad cols.") }
+		if (StateManager.SunRange < 0x1 || StateManager.SunRange > 0xA) { throw new Error("StateManager: startDataValidator: START_DATA bad sun range.") }
+		if (StateManager.WaterRate < 0.1 || StateManager.WaterRate > 0.9) { throw new Error("StateManager: startDataValidator: START_DATA bad water rate.") }
+		if (StateManager.SeedsToWin < 1 || StateManager.SeedsToWin > 0xFF) { throw new Error("StateManager: startDataValidator: START_DATA bad seeds to win.") }
+
+
+	}
 }
+

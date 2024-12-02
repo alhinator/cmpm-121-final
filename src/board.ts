@@ -10,10 +10,6 @@ export enum TILETYPE {
 	WATER,
 }
 /**
- * @constant SUN_RANGE is the rage at which the sun will provide light.
- */
-const SUN_RANGE = 6;
-/**
  * @constant MAX_HYDRATION is the maximum possible hydration level of a tile.
  */
 const MAX_HYDRATION = 4;
@@ -60,6 +56,8 @@ export default class Board {
 	public readonly rows: number;
 	public readonly cols: number;
 	public readonly tileSize: number;
+	public readonly sunRange:number;
+
 	private StateMGR: StateManager;
 	private tileRectangles: Phaser.GameObjects.Rectangle[] = [];
 	private plantSprites: Phaser.GameObjects.Text[] = [];
@@ -75,10 +73,11 @@ export default class Board {
 		this.cols = cols;
 		this.tileSize = tileSize;
 		this.StateMGR = mgr;
+		this.sunRange = StateManager.SunRange;
 
 		this.StateMGR.setColsAndRows(cols, rows);
 
-		this.Sun = this.cols - 1 + SUN_RANGE;
+		this.Sun = this.cols - 1 + this.sunRange;
 		this.InitTiles();
 	}
 
@@ -372,7 +371,7 @@ export default class Board {
 		waterTiles.forEach((waterTile) => {
 			const adjs = this.GetAdjacentTiles({ row: waterTile.row, col: waterTile.col });
 			adjs.forEach((neighbor) => {
-				neighbor.water += 1 + Math.random();
+				neighbor.water += StateManager.WaterRate + Math.random();
 				if (neighbor.water > MAX_HYDRATION) {
 					neighbor.water = MAX_HYDRATION;
 				}
@@ -446,8 +445,8 @@ export default class Board {
 	 */
 	private MoveSun() {
 		this.Sun--;
-		if (this.Sun <= -SUN_RANGE) {
-			this.Sun = this.cols - 1 + SUN_RANGE;
+		if (this.Sun <= -this.sunRange) {
+			this.Sun = this.cols - 1 + this.sunRange;
 		}
 	}
 
@@ -463,7 +462,7 @@ export default class Board {
 				}
 
 				const distance = Math.abs(col - this.Sun);
-				const lightLevel = distance < SUN_RANGE ? 1 + Math.random() * 0.1 * Math.max(0, SUN_RANGE - distance) : 0;
+				const lightLevel = distance < this.sunRange ? 1 + Math.random() * 0.1 * Math.max(0, this.sunRange - distance) : 0;
 				const tmp = this.GetTile({ row: row, col: col })!;
 				if (tmp) {
 					tmp.sun = lightLevel;

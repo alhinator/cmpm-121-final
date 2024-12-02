@@ -15,16 +15,10 @@ const APP_NAME = "Final Game";
  */
 const TILE_SIZE = 32;
 
-/**
- * @constant GRID_WIDTH The number of tiles horizontally in the grid.
- * @constant GRID_HEIGHT The number of tiles vertically in the grid.
- */
-const GRID_WIDTH = 25;
-const GRID_HEIGHT = 18;
 
 class MainScene extends Phaser.Scene {
-	readonly StateMGR: StateManager = new StateManager({ rows: GRID_HEIGHT, cols: GRID_WIDTH });
-	readonly board = new Board(GRID_WIDTH, GRID_HEIGHT, TILE_SIZE, this.StateMGR);
+	readonly StateMGR: StateManager = new StateManager();
+	readonly board = new Board(StateManager.cols, StateManager.rows, TILE_SIZE, this.StateMGR);
 	readonly player = new Player(this.board, TILE_SIZE, 5, 5, this.StateMGR);
 	
 	inventory?: HTMLParagraphElement;
@@ -123,8 +117,8 @@ const main = () => {
 
 	// Run the main scene
 	new Phaser.Game({
-		width: TILE_SIZE * GRID_WIDTH,
-		height: TILE_SIZE * GRID_HEIGHT,
+		width: TILE_SIZE * StateManager.cols,
+		height: TILE_SIZE * StateManager.rows,
 		scene: MainScene
 	});
 }
