@@ -7,9 +7,8 @@ import StateManager, { floatSize } from "./save";
  */
 export default class Player {
 	private static readonly avatarPath: string = "/assets/playerAvatar.png";
-	private static avatar: HTMLImageElement | null = null;
-
-	private readonly canvas: HTMLCanvasElement;
+	
+	private avatar?: Phaser.GameObjects.Sprite;
 
 	private readonly board: Board;
 	private StateMGR: StateManager;
@@ -18,27 +17,13 @@ export default class Player {
 	private currentPlant: number = NO_PLANT;
 
 	/**
-	 * @function Loads the player avatar image. Must be called before creating any Player instances.
-	 */
-	public static LoadAvatar(): void {
-		if (!Player.avatar) {
-			Player.avatar = new Image();
-			Player.avatar.src = Player.avatarPath;
-		}
-	}
-
-	/**
 	 * @param canvas The canvas element on which the player will be drawn.
 	 * @param initialX The starting X-coordinate (in tiles) of the player.
 	 * @param initialY The starting Y-coordinate (in tiles) of the player.
 	 * @param mgr The state manager to store this player's data.
 	 * @function Constructs a new Player instance and initializes its position.
 	 */
-	constructor(canvas: HTMLCanvasElement, board: Board, tileSize: number, initialX: number, initialY: number, mgr: StateManager) {
-		if (!Player.avatar) {
-			throw new Error("Player: Avatar image not loaded. Call Player.LoadAvatar() first.");
-		}
-		this.canvas = canvas;
+	constructor(board: Board, tileSize: number, initialX: number, initialY: number, mgr: StateManager) {
 		this.board = board;
 		this.StateMGR = mgr;
 		this.tileSize = tileSize;
@@ -163,12 +148,29 @@ export default class Player {
 	}
 
 	// ---------- Public functions ------------
+
 	/**
-	 * Draws the player avatar at the current position on the canvas.
+	 * Preloads the player avatar.
+	 * @param scene The scene to preload the avatar in.
 	 */
-	public draw(context: CanvasRenderingContext2D): void {
-		//this.context.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear previous frame
-		context.drawImage(Player.avatar!, this.x, this.y, this.tileSize, this.tileSize);
+	public preload(scene: Phaser.Scene) {
+		scene.load.image("avatar", Player.avatarPath);
+	}
+
+	/**
+	 * Creates the sprite that represents the player.
+	 * @param scene The scene to create the player sprite in.
+	 */
+	public create(scene: Phaser.Scene) {
+		this.avatar = scene.add.sprite(this.x + this.tileSize / 2, this.y + this.tileSize / 2, "avatar");
+		this.avatar.setScale(1 / this.tileSize);
+	}
+
+	/**
+	 * Updates the sprite representing the player
+	 */
+	public updateSprite(): void {
+		this.avatar?.setPosition(this.x + this.tileSize / 2, this.y + this.tileSize / 2);
 	}
 
 	/**
@@ -181,10 +183,10 @@ export default class Player {
 		const newY = this.y + deltaY * this.tileSize;
 
 		// Constrain movement to the canvas bounds
-		if (newX >= 0 && newX < this.canvas.width && newY >= 0 && newY < this.canvas.height) {
+		// if (newX >= 0 && newX < this.canvas.width && newY >= 0 && newY < this.canvas.height) {
 			this.x = newX;
 			this.y = newY;
-		}
+		// }
 	}
 
 	/**

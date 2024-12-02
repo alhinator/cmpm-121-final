@@ -59,7 +59,10 @@ export class Tile {
 export default class Board {
 	public readonly rows: number;
 	public readonly cols: number;
+	public readonly tileSize: number;
 	private StateMGR: StateManager;
+	private tileRectangles: Phaser.GameObjects.Rectangle[] = [];
+	private plantSprites: Phaser.GameObjects.Text[] = [];
 
 	/**
 	 * @constructor Initialize an empty board.
@@ -67,9 +70,10 @@ export default class Board {
 	 * @param rows Height of the board to initialize to. Cannot be changed once set.
 	 * @param mgr The state manager that this board will be using.
 	 */
-	constructor(cols: number, rows: number, mgr: StateManager) {
+	constructor(cols: number, rows: number, tileSize: number, mgr: StateManager) {
 		this.rows = rows;
 		this.cols = cols;
+		this.tileSize = tileSize;
 		this.StateMGR = mgr;
 
 		this.StateMGR.setColsAndRows(cols, rows);
@@ -80,8 +84,26 @@ export default class Board {
 
 	// -------- Public class operations --------
 	/**
+	 * Creates the sprites that represent the board.
+	 * @param scene The scene to create the board sprites in.
+	 */
+	public create(scene: Phaser.Scene) {
+		for (let i = 0; i < this.rows; i++) {
+			for (let j = 0; j < this.cols; j++) {
+				this.tileRectangles.push(scene.add.rectangle(
+					(j + 0.5) * this.tileSize, (i + 0.5) * this.tileSize,
+					this.tileSize, this.tileSize));
+				this.plantSprites.push(scene.add.text(
+					(j + 0.3) * this.tileSize, (i + 0.3) * this.tileSize,
+					"",
+					{ fontFamily: "monospace", fontSize: "24px"}));
+			}
+		}
+	}
+
+	/**
 	 *
-	 * @returns A paragraph-formatted string with the current displayable character of each tile on the grid.
+	 * @returns A paragraph-formatted string with the currentN displayable character of each tile on the grid.
 	 */
 	public toString(): string {
 		let retStr = "";
@@ -106,19 +128,13 @@ export default class Board {
 	}
 
 	/**
-	 * Draws the board.
-	 * @param context The rendering context to draw the board to
-	 * @param tileSize The size of each tile
+	 * Updates the sprites that represent the board.
 	 */
-	public draw(context: CanvasRenderingContext2D, tileSize: number): void {
-		context.save(); // Save the current drawing state
-		context.strokeStyle = "#000000"; // Black color for grid lines
-		context.lineWidth = 1; // Thin but visible lines
-
+	public updateSprites(): void {
+		let color: number[] = [0, 0, 0];
 		for (let y = 0; y < this.rows; y++) {
 			for (let x = 0; x < this.cols; x++) {
 				let tile = this.GetTile({ row: y, col: x })!;
-				let color: number[] = [0, 0, 0];
 				if (tile.content == TILETYPE.WATER) {
 					color[0] = WATER_COLOR[0];
 					color[1] = WATER_COLOR[1];
@@ -130,43 +146,26 @@ export default class Board {
 					color[2] = DIRT_COLOR[2] * (1 - tint_level) + WATER_COLOR[2] * tint_level;
 				}
 				const brightness = Math.max(0.5, tile.sun);
-				color[0] = Math.floor(color[0] * brightness);
-				color[1] = Math.floor(color[1] * brightness);
-				color[2] = Math.floor(color[2] * brightness);
-				context.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-				context.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+				color[0] = Math.min(Math.floor(color[0] * brightness), 255);
+				color[1] = Math.min(Math.floor(color[1] * brightness), 255);
+				color[2] = Math.min(Math.floor(color[2] * brightness), 255);
+
+				let colorCode = (color[0] << 16) | (color[1] << 8) | (color[2] << 0);
+				this.tileRectangles[y * this.cols + x].setFillStyle(colorCode);
 
 				if (tile.content == TILETYPE.PLANT && tile.plant != NO_PLANT) {
-					color[0] = Math.floor(PLANT_COLOR[0] * brightness);
-					color[1] = Math.floor(PLANT_COLOR[1] * brightness);
-					color[2] = Math.floor(PLANT_COLOR[2] * brightness);
-					context.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-					context.font = "24px monospace";
-					context.textAlign = "center";
-					context.textBaseline = "middle";
-					context.fillText(Plant.displayCharacter(tile.plant, tile.growth), (x + 0.5) * tileSize, (y + 0.5) * tileSize);
+					color[0] = Math.min(Math.floor(PLANT_COLOR[0] * brightness), 255);
+					color[1] = Math.min(Math.floor(PLANT_COLOR[1] * brightness), 255);
+					color[2] = Math.min(Math.floor(PLANT_COLOR[2] * brightness), 255);
+					this.plantSprites[y * this.cols + x].setColor(`rgb(${color[0]}, ${color[1]}, ${color[2]})`);
+					this.plantSprites[y * this.cols + x].setText(Plant.displayCharacter(tile.plant, tile.growth));
+				} else {
+					this.plantSprites[y * this.cols + x].setText("");
 				}
 			}
 		}
-
-		// Draw vertical grid lines
-		for (let x = 0; x <= this.cols * tileSize; x += tileSize) {
-			context.beginPath();
-			context.moveTo(x, 0);
-			context.lineTo(x, this.rows * tileSize);
-			context.stroke();
-		}
-
-		// Draw horizontal grid lines
-		for (let y = 0; y <= this.rows * tileSize; y += tileSize) {
-			context.beginPath();
-			context.moveTo(0, y);
-			context.lineTo(this.cols * tileSize, y);
-			context.stroke();
-		}
-
-		context.restore(); // Restore the drawing state
 	}
+
 	public get board() {
 		return this.StateMGR.board;
 	}

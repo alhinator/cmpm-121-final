@@ -2,6 +2,8 @@ import Board from "./board.ts";
 import Player from "./player.ts";
 import Time from "./time.ts";
 import StateManager from "./save.ts";
+import Phaser from "phaser";
+
 
 /**
  * @constant APP_NAME The name of the application displayed in the title and header.
@@ -20,115 +22,112 @@ const TILE_SIZE = 32;
 const GRID_WIDTH = 25;
 const GRID_HEIGHT = 18;
 
-function refreshSaveUI(stateMGR: StateManager, container: HTMLDivElement) {
-	container.innerHTML = ""; // Clear the container
-	Time.update();
+class MainScene extends Phaser.Scene {
+	readonly StateMGR: StateManager = new StateManager({ rows: GRID_HEIGHT, cols: GRID_WIDTH });
+	readonly board = new Board(GRID_WIDTH, GRID_HEIGHT, TILE_SIZE, this.StateMGR);
+	readonly player = new Player(this.board, TILE_SIZE, 5, 5, this.StateMGR);
+	
+	inventory?: HTMLParagraphElement;
+	win?: HTMLHeadingElement;
 
-	let slots = stateMGR.getSlots();
-	slots.forEach((slot) => {
-		const btn = document.createElement("button");
-		btn.style.display = "block";
-		if(slot == stateMGR.getCurrentSlotId()) {
-			btn.innerHTML = "Save #" + slot;
-			btn.addEventListener("click", () => {
-				stateMGR.save();
-				refreshSaveUI(stateMGR, container);
-			});
-		} else {
-			btn.innerHTML = "Load #" + slot;
-			btn.addEventListener("click", () => {
-				stateMGR.loadFrom(slot);
-				refreshSaveUI(stateMGR, container);
-			});
-		}
-		container.append(btn);
-	});
+	refreshSaveUI(container: HTMLDivElement) {
+		container.innerHTML = ""; // Clear the container
+		Time.update();
 
-	const saveBtn = document.createElement("button");
-	saveBtn.style.display = "block";
-	saveBtn.innerHTML = "New Save";
-	saveBtn.addEventListener("click", () => {
-		stateMGR.newSave();
-		refreshSaveUI(stateMGR, container);
-	});
-	container.append(saveBtn);
-}
+		let slots = this.StateMGR.getSlots();
+		slots.forEach((slot) => {
+			const btn = document.createElement("button");
+			btn.style.display = "block";
+			if(slot == this.StateMGR.getCurrentSlotId()) {
+				btn.innerHTML = "Save #" + slot;
+				btn.addEventListener("click", () => {
+					this.StateMGR.save();
+					this.refreshSaveUI(container);
+				});
+			} else {
+				btn.innerHTML = "Load #" + slot;
+				btn.addEventListener("click", () => {
+					this.StateMGR.loadFrom(slot);
+					this.refreshSaveUI(container);
+				});
+			}
+			container.append(btn);
+		});
 
-/**
- * Main game setup and loop.
- */
-const main = () => {
-	// Setup application container
-	const app = document.querySelector<HTMLDivElement>("#app")!;
-	document.title = APP_NAME;
-
-	// Add application title
-	const title = document.createElement("h1");
-	title.textContent = APP_NAME;
-	app.appendChild(title);
-
-	// Setup canvas
-	const canvas = document.createElement("canvas");
-	canvas.width = GRID_WIDTH * TILE_SIZE; // E.g., 32 * 25 = 800px
-	canvas.height = GRID_HEIGHT * TILE_SIZE; // E.g., 32 * 18 = 576px
-	canvas.style.border = "1px solid black"; // Add a border for visibility during testing
-	app.appendChild(canvas);
-	const context = canvas.getContext("2d")!;
-
-	// Load player avatar
-	Player.LoadAvatar();
-
-	//Create State Manager
-	const StateMGR = new StateManager({ rows: GRID_HEIGHT, cols: GRID_WIDTH });
-
-	// Instantiate the board
-	const board = new Board(GRID_WIDTH, GRID_HEIGHT, StateMGR);
-
-	// Instantiate the player
-	const player = new Player(canvas, board, TILE_SIZE, 5, 5, StateMGR);
-
-	// Initialize time module
-	Time.initialize(app, board, StateMGR);
-
-	if(StateMGR.hasAutosave()) {
-		let ans: string | null = null;
-		while(ans == null) {
-			ans = prompt("Would you like to continue where you left off? [Y/N]");
-		}
-		if(ans.toLowerCase().trimStart().charAt(0) == "y") {
-			StateMGR.loadAutosave();
-		}
+		const saveBtn = document.createElement("button");
+		saveBtn.style.display = "block";
+		saveBtn.innerHTML = "New Save";
+		saveBtn.addEventListener("click", () => {
+			this.StateMGR.newSave();
+			this.refreshSaveUI(container);
+		});
+		container.append(saveBtn);
 	}
 
-	// MESSY CODE: REFACTOR LATER
-	//create and append the player inventory:
-	const inventory = document.createElement("p");
-	inventory.innerHTML = "Inventory: Empty";
-	app.appendChild(inventory);
+	preload() {
+		this.player.preload(this);
+	}
 
-	// create and append the win text
-	const win = document.createElement("h1");
-	win.innerText = "";
-	app.appendChild(win);
+	create() {
+		this.board.create(this);
+		this.player.create(this);
 
-	let saveContainer = document.createElement("div");
-	app.append(saveContainer);
-	refreshSaveUI(StateMGR, saveContainer);
+		let uiRoot = document.createElement("div");
+		document.body.append(uiRoot);
 
-	// Game loop
-	const gameLoop = () => {
-		context.clearRect(0, 0, canvas.width, canvas.height); // Clear the screen
-		board.draw(context, TILE_SIZE); // Draw the board
-		player.draw(context); // Draw the player sprite on top of the board
-		inventory.innerHTML = `Inventory:<br>` + player.requestInventoryContents(); //Request inventory display string.
-		if (player.checkWinCon()) {
-			win.innerText = "You won!";
+		Time.initialize(uiRoot, this.board, this.StateMGR);
+
+		if(this.StateMGR.hasAutosave()) {
+			let ans: string | null = null;
+			while(ans == null) {
+				ans = prompt("Would you like to continue where you left off? [Y/N]");
+			}
+			if(ans.toLowerCase().trimStart().charAt(0) == "y") {
+				this.StateMGR.loadAutosave();
+			}
 		}
-		requestAnimationFrame(gameLoop); // Schedule the next frame
-	};
 
-	gameLoop();
-};
+		// MESSY CODE: REFACTOR LATER
+		//create and append the player inventory:
+		this.inventory = document.createElement("p");
+		this.inventory.innerHTML = "Inventory: Empty";
+		uiRoot.appendChild(this.inventory);
+
+		// create and append the win text
+		this.win = document.createElement("h1");
+		this.win.innerText = "";
+		uiRoot.appendChild(this.win);
+
+		let saveContainer = document.createElement("div");
+		uiRoot.append(saveContainer);
+		this.refreshSaveUI(saveContainer);
+	}
+
+	update(): void {
+		this.board.updateSprites();
+		this.player.updateSprite();
+
+		this.inventory!.innerHTML = `Inventory:<br>` + this.player.requestInventoryContents(); //Request inventory display string.
+		if (this.player.checkWinCon()) {
+			this.win!.innerText = "You won!";
+		}
+	}
+}
+
+const main = () => {
+	// Add application title
+	document.title = APP_NAME;
+	const title = document.createElement("h1");
+	title.textContent = APP_NAME;
+	document.body.appendChild(title);
+
+	// Run the main scene
+	new Phaser.Game({
+		width: TILE_SIZE * GRID_WIDTH,
+		height: TILE_SIZE * GRID_HEIGHT,
+		scene: MainScene
+	});
+}
 
 // Start the game
 main();
