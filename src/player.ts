@@ -234,10 +234,7 @@ export default class Player {
 	}
 
 	private initInventory() {
-		const tempSeed = new Map<number, number>();
-		tempSeed.set(0, 3);
-		tempSeed.set(1, 3);
-		tempSeed.set(2, 3);
+		const tempSeed = this.StateMGR.startSeedData;
 		this.seeds = tempSeed;
 
 		const tempCrops = new Map<number,number>();
@@ -321,7 +318,8 @@ export default class Player {
 		const wh = this.crops.get(0);
 		const co = this.crops.get(1);
 		const ri = this.crops.get(2);
-		if (wh && wh >= 10 && co && co >= 10 && ri && ri >= 10) {
+		const win = StateManager.SeedsToWin
+		if (wh && wh >= win && co && co >= win && ri && ri >= win) {
 			return true;
 		}
 		return false;
