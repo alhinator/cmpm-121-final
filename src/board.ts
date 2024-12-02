@@ -56,7 +56,8 @@ export default class Board {
 	public readonly rows: number;
 	public readonly cols: number;
 	public readonly tileSize: number;
-	public readonly sunRange:number;
+	private sunRange_private: number = 0;
+	private waterRate: number;
 
 	private StateMGR: StateManager;
 	private tileRectangles: Phaser.GameObjects.Rectangle[] = [];
@@ -74,6 +75,7 @@ export default class Board {
 		this.tileSize = tileSize;
 		this.StateMGR = mgr;
 		this.sunRange = StateManager.SunRange;
+		this.waterRate = StateManager.WaterRate;
 
 		this.StateMGR.setColsAndRows(cols, rows);
 
@@ -89,13 +91,10 @@ export default class Board {
 	public create(scene: Phaser.Scene) {
 		for (let i = 0; i < this.rows; i++) {
 			for (let j = 0; j < this.cols; j++) {
-				this.tileRectangles.push(scene.add.rectangle(
-					(j + 0.5) * this.tileSize, (i + 0.5) * this.tileSize,
-					this.tileSize, this.tileSize));
-				this.plantSprites.push(scene.add.text(
-					(j + 0.3) * this.tileSize, (i + 0.3) * this.tileSize,
-					"",
-					{ fontFamily: "monospace", fontSize: "24px"}));
+				this.tileRectangles.push(scene.add.rectangle((j + 0.5) * this.tileSize, (i + 0.5) * this.tileSize, this.tileSize, this.tileSize));
+				this.plantSprites.push(
+					scene.add.text((j + 0.3) * this.tileSize, (i + 0.3) * this.tileSize, "", { fontFamily: "monospace", fontSize: "24px" })
+				);
 			}
 		}
 	}
@@ -120,6 +119,7 @@ export default class Board {
 	 * Causes the board to move forward one game tick: Moves the sun, hydrates tiles, and gives plants the chance to grow.
 	 */
 	public Tick() {
+		this.ConditionChange();
 		this.MoveSun();
 		this.UpdateSunTiles();
 		this.Hydrate();
@@ -440,6 +440,12 @@ export default class Board {
 		const bv = this.StateMGR.board;
 		bv.setFloat64(MainOffset + 0, value);
 	}
+	public get sunRange(): number {
+		return this.sunRange_private;
+	}
+	private set sunRange(value: number) {
+		this.sunRange_private = value;
+	}
 	/**
 	 * Moves the sun from right to left over the board.
 	 */
@@ -471,5 +477,37 @@ export default class Board {
 			}
 		}
 	}
-	// -------- Data setting and saving funcions --------
+	/**
+	 * Checks the save manager for a condition change.
+	 */
+	private ConditionChange() {
+		const changesList = this.StateMGR.conditionChange;
+		console.log(changesList);
+		changesList.forEach((line) => {
+			const params = line.split(` `);
+
+			console.log(params);
+
+			switch (params[0]) {
+				case "sun_range":
+					this.sunRange =
+						this.StateMGR.turn >= parseInt(params[3]) && this.StateMGR.turn < parseInt(params[4])
+							? parseInt(params[1])
+							: this.sunRange;
+					if (this.StateMGR.turn == parseInt(params[4])) {
+						this.sunRange = StateManager.SunRange
+					}
+					break;
+					case "water_rate":
+						this.waterRate =
+							this.StateMGR.turn >= parseInt(params[3]) && this.StateMGR.turn < parseInt(params[4])
+								? parseInt(params[1])
+								: this.waterRate;
+						if (this.StateMGR.turn == parseInt(params[4])) {
+							this.waterRate = StateManager.WaterRate
+						}
+						break;
+			}
+		});
+	}
 }
