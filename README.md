@@ -170,3 +170,9 @@ The player can affect the tile vertically below them with the following operatio
 (Ben Hess)
 
 - The project was ported from using the JavaScript canvas API to using the Phaser engine. This required changes to some parts of our code related to rendering and initialization but everything else was able to remain the same.
+
+## Reflection
+
+(Ben Hess)
+
+- Our team's plans have remained mostly the same since the begining but our roles have definitly become more well defined. I have focused a lot of my efforts on the save/load system since that has required a lot of fundamental changes in how the game works. Those major changes changed the way our project works and the way we think about the structure of the code how it processes the state of the game, but the game was able to remain pretty much the same from a player perspective.
