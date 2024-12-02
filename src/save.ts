@@ -129,8 +129,7 @@ export default class StateManager {
 		if(this.currentSlotId < 0) {
 			this.currentSlotId = this.getOpenSlotId();
 		}
-		const arr = Array.from(new Uint8Array(this.stateBuffer));
-		localStorage.setItem("game_save_" + this.currentSlotId, JSON.stringify(arr));
+		localStorage.setItem("game_save_" + this.currentSlotId, this.encode());
 	}
 
 	public newSave() {
@@ -139,8 +138,7 @@ export default class StateManager {
 	}
 
 	public autosave() {
-		const arr = Array.from(new Uint8Array(this.stateBuffer));
-		localStorage.setItem("game_autosave", JSON.stringify(arr));
+		localStorage.setItem("game_autosave", this.encode());
 		localStorage.setItem("game_autosave_slot", JSON.stringify(this.currentSlotId));
 	}
 
@@ -157,15 +155,13 @@ export default class StateManager {
 	}
 
 	public loadFrom(slotID: number) {
-		const arr = JSON.parse(localStorage.getItem("game_save_" + slotID)!);
-		this.stateBuffer = new Uint8Array(arr).buffer;
+		this.decode(localStorage.getItem("game_save_" + slotID)!);
 		this.currentSlotId = slotID;
 	}
 
 	public loadAutosave() {
 		if(this.hasAutosave()) {
-			const arr = JSON.parse(localStorage.getItem("game_autosave")!);
-			this.stateBuffer = new Uint8Array(arr).buffer;
+			this.decode(localStorage.getItem("game_autosave")!);
 			this.currentSlotId = this.getAutosaveSlot();
 			this.save();
 		}
@@ -191,5 +187,22 @@ export default class StateManager {
 			}
 		}
 		return slots.sort();
+	}
+
+	private encode(): string {
+		let result = "";
+		const bytes = new Uint8Array(this.stateBuffer);
+		for(let i = 0; i < bytes.length; i++) {
+			result += String.fromCharCode(bytes[i]);
+		}
+		return result;
+	}
+
+	private decode(str: string): void {
+		const arr = new Uint8Array(str.length);
+		for(let i = 0; i < str.length; i++) {
+			arr[i] = str.charCodeAt(i);
+		}
+		this.stateBuffer = arr.buffer;
 	}
 }
