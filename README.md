@@ -142,3 +142,31 @@ The player can affect the tile vertically below them with the following operatio
 -    Each saved game is encoded as a turn number followed by a list of game states.
 -    The "Undo" and "Redo" buttons allow the player to move forward and backwards through this list of game states.
 -    When a turn is taken, all future game states are deleted and the new game state is added.
+
+# F2 Devlog 2 Dec 2024
+
+## How we satisfied the software requirements
+
+### F0[a-e] - Same as last week.
+
+### [F1.a] - Same as last week.
+
+### [F1.b] The player must be able to manually save their progress in the game. This must allow them to load state and continue play another day (i.e. after quitting the game app). The player must be able to manage multiple save files/slots.
+
+(Ben Hess)
+
+- Instead of using JSON to encode the state array for game saves, the project now encodes each byte of the array as a character and saves the resulting string into local storage. This results in significantly less memory being used to store saved games.
+
+### F1[b-d] - Same as last week.
+
+### [F2.a] In separate text file or text block, designers should be able to express the design of different gameplay scenarios, e.g. starting conditions, weather randomization policy, and victory conditions. The language must be able to schedule unique events that happen at specific times.
+
+
+### [F2.b] Within the main programming language used for the rest of your game, you should implement and use a domain-specific language for defining your different types of plants and the unique growth rules that apply to each.
+
+
+### [F2.c] Change either your project's primary programming language or your primary user interface library/engine/framework. As more of your design is expressed in DSLs, your design becomes increasingly insulated from changes to your primarily programming language or engine. Using your earlier implementation as a reference, it becomes more realistic that you'd be able to leverage generative AI for the large but mostly mindless translations from one language or engine to another.
+
+(Ben Hess)
+
+- The project was ported from using the JavaScript canvas API to using the Phaser engine. This required changes to some parts of our code related to rendering and initialization but everything else was able to remain the same.
