@@ -147,34 +147,41 @@ The player can affect the tile vertically below them with the following operatio
 
 ## How we satisfied the software requirements
 
-### F0[a-e] - Same as last week.
+### F0 - F1:
 
-### [F1.a] - Same as last week.
+-    F0[a-e] - Same as last week.
 
-### [F1.b] The player must be able to manually save their progress in the game. This must allow them to load state and continue play another day (i.e. after quitting the game app). The player must be able to manage multiple save files/slots.
+-    [F1.a] - Same as last week.
+
+-    [F1.b] The player must be able to manually save their progress in the game. This must allow them to load state and continue play another day (i.e. after quitting the game app). The player must be able to manage multiple save files/slots.
 
 (Ben Hess)
 
 -    Instead of using JSON to encode the state array for game saves, the project now encodes each byte of the array as a character and saves the resulting string into local storage. This results in significantly less memory being used to store saved games.
 
-### F1[b-d] - Same as last week.
+-    F1[c-d] - Same as last week.
 
-### [F2.a] In separate text file or text block, designers should be able to express the design of different gameplay scenarios, e.g. starting conditions, weather randomization policy, and victory conditions. The language must be able to schedule unique events that happen at specific times.
+### External DSL For Scenario Design
 
 (alhinator)
 
--    In startData.txt, designers are able to express the design for a single scenario. Instructions for creating a scenario are included [here](/data/startDataInstructions.md).
+-    In startData.txt, designers are able to express the design for a single scenario. Instructions for creating a scenario as well as the natural language descriptors are included [here](/data/startDataInstructions.md).
+-    Designers can specify board size, sun "width", the rate that water tiles hydrate adjacent tiles, and the number of seeds (of each plant type) needed to complete the game. They may also specify the number of starting seeds for each plant, and "condition changes" that last a certain number of turns. The conditions that can be changed are sun width and water rate.
 
-### [F2.b] Within the main programming language used for the rest of your game, you should implement and use a domain-specific language for defining your different types of plants and the unique growth rules that apply to each.
+### Internal DSL for Plants and Growth Conditions
 
-### [F2.c] Change either your project's primary programming language or your primary user interface library/engine/framework. As more of your design is expressed in DSLs, your design becomes increasingly insulated from changes to your primarily programming language or engine. Using your earlier implementation as a reference, it becomes more realistic that you'd be able to leverage generative AI for the large but mostly mindless translations from one language or engine to another.
+### Switch to Alternate Platform
 
 (Ben Hess)
 
-- The project was ported from using the JavaScript canvas API to using the Phaser engine. This required changes to some parts of our code related to rendering and initialization but everything else was able to remain the same.
+-    The project was ported from using the JavaScript canvas API to using the Phaser engine. This required changes to some parts of our code related to rendering and initialization but everything else was able to remain the same.
 
 ## Reflection
 
+(alhinator)
+
+-    Our teams plans have different slightly in the sense that we are now focusing more on achieving requirements than adhering to a specific visual form. Our roles are generally the same, and we've settled into patterns on which responsibilities we tend towards. However, I have seen that all three of us have started slacking with our code documentation.
+
 (Ben Hess)
 
-- Our team's plans have remained mostly the same since the begining but our roles have definitly become more well defined. I have focused a lot of my efforts on the save/load system since that has required a lot of fundamental changes in how the game works. Those major changes changed the way our project works and the way we think about the structure of the code how it processes the state of the game, but the game was able to remain pretty much the same from a player perspective.
+-    Our team's plans have remained mostly the same since the begining but our roles have definitly become more well defined. I have focused a lot of my efforts on the save/load system since that has required a lot of fundamental changes in how the game works. Those major changes changed the way our project works and the way we think about the structure of the code how it processes the state of the game, but the game was able to remain pretty much the same from a player perspective.
