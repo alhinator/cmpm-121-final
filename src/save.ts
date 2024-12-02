@@ -1,5 +1,6 @@
 import Player from "./player";
 import Plant from "./plant";
+import START_DATA from "../data/startData.txt?raw";
 
 export interface saveData {
 	boardState: DataView;
@@ -21,16 +22,6 @@ export const PlayerDataSize = floatSize * 4 + Plant.numPlants * floatSize * 4;
 /**
  * @constant The size of additional static board data, in bits
  */
-const START_DATA =
-	`0x20
-0xF
-0x4
-0.1
-0xA
-0, 3
-1, 3
-2, 3`
-
 
 export const addlData = floatSize * 3;
 /**
@@ -85,12 +76,33 @@ export default class StateManager {
 		const bv = new DataView(this.stateBuffer, this.turnOffset + this.boardDataLength, PlayerDataSize);
 		return bv;
 	}
-	public get startSeedData():Map<number,number>{
+	public get conditionChange(): string[] {
+		const retVal:string[] = []
+		let found = -1
+		for(let i = 6; i <START_DATA.split(`\n`).length; i++){
+			const line: string = START_DATA.split(`\n`)[i];
+			if (line.includes("CONDITIONS")) {
+				found = i + 1;
+				break;
+			}
+		}
+		if(found == -1){return []};
+		for (let i = found; i < START_DATA.split(`\n`).length; i++){
+			retVal.push(START_DATA.split(`\n`)[i])
+		}
+		return retVal;
+	}
+	public get startSeedData(): Map<number, number> {
 		const retVal = new Map<number, number>();
-		for(let i = 5; i < START_DATA.split(`\n`).length; i++){
-			const line:string[] = START_DATA.split(`\n`)[i].split(`,`);
-			retVal.set(parseInt(line[0]), parseInt(line[1]))
-			if(parseInt(line[0]) > Plant.numPlants){throw new Error("StateManager: startSeedData: Bad plant ID")}
+		for (let i = 6; i < START_DATA.split(`\n`).length; i++) {
+			const line: string[] = START_DATA.split(`\n`)[i].split(`,`);
+			if (line[0] == "CONDITIONS") {
+				break;
+			}
+			retVal.set(parseInt(line[0]), parseInt(line[1]));
+			if (parseInt(line[0]) > Plant.numPlants) {
+				throw new Error("StateManager: startSeedData: Bad plant ID");
+			}
 		}
 		return retVal;
 	}
@@ -187,7 +199,7 @@ export default class StateManager {
 	}
 
 	public loadAutosave() {
-		if(this.hasAutosave()) {
+		if (this.hasAutosave()) {
 			this.decode(localStorage.getItem("game_autosave")!);
 			this.currentSlotId = this.getAutosaveSlot();
 			this.save();
@@ -219,7 +231,7 @@ export default class StateManager {
 	private encode(): string {
 		let result = "";
 		const bytes = new Uint8Array(this.stateBuffer);
-		for(let i = 0; i < bytes.length; i++) {
+		for (let i = 0; i < bytes.length; i++) {
 			result += String.fromCharCode(bytes[i]);
 		}
 		return result;
@@ -227,18 +239,27 @@ export default class StateManager {
 
 	private decode(str: string): void {
 		const arr = new Uint8Array(str.length);
-		for(let i = 0; i < str.length; i++) {
+		for (let i = 0; i < str.length; i++) {
 			arr[i] = str.charCodeAt(i);
 		}
 		this.stateBuffer = arr.buffer;
 	}
 
 	private startDataValidator() {
-		if (StateManager.rows < 0x1 || StateManager.rows > 0x20) { throw new Error("StateManager: startDataValidator: START_DATA bad rows.") }
-		if (StateManager.cols < 0x1 || StateManager.cols > 0x20) { throw new Error("StateManager: startDataValidator: START_DATA bad cols.") }
-		if (StateManager.SunRange < 0x1 || StateManager.SunRange > 0xA) { throw new Error("StateManager: startDataValidator: START_DATA bad sun range.") }
-		if (StateManager.WaterRate < 0.1 || StateManager.WaterRate > 0.9) { throw new Error("StateManager: startDataValidator: START_DATA bad water rate.") }
-		if (StateManager.SeedsToWin < 1 || StateManager.SeedsToWin > 0xFF) { throw new Error("StateManager: startDataValidator: START_DATA bad seeds to win.") }
+		if (StateManager.rows < 0x1 || StateManager.rows > 0x20) {
+			throw new Error("StateManager: startDataValidator: START_DATA bad rows.");
+		}
+		if (StateManager.cols < 0x1 || StateManager.cols > 0x20) {
+			throw new Error("StateManager: startDataValidator: START_DATA bad cols.");
+		}
+		if (StateManager.SunRange < 0x1 || StateManager.SunRange > 0xa) {
+			throw new Error("StateManager: startDataValidator: START_DATA bad sun range.");
+		}
+		if (StateManager.WaterRate < 0.1 || StateManager.WaterRate > 0.9) {
+			throw new Error("StateManager: startDataValidator: START_DATA bad water rate.");
+		}
+		if (StateManager.SeedsToWin < 1 || StateManager.SeedsToWin > 0xff) {
+			throw new Error("StateManager: startDataValidator: START_DATA bad seeds to win.");
+		}
 	}
 }
-

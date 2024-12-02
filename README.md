@@ -155,15 +155,17 @@ The player can affect the tile vertically below them with the following operatio
 
 (Ben Hess)
 
-- Instead of using JSON to encode the state array for game saves, the project now encodes each byte of the array as a character and saves the resulting string into local storage. This results in significantly less memory being used to store saved games.
+-    Instead of using JSON to encode the state array for game saves, the project now encodes each byte of the array as a character and saves the resulting string into local storage. This results in significantly less memory being used to store saved games.
 
 ### F1[b-d] - Same as last week.
 
 ### [F2.a] In separate text file or text block, designers should be able to express the design of different gameplay scenarios, e.g. starting conditions, weather randomization policy, and victory conditions. The language must be able to schedule unique events that happen at specific times.
 
+(alhinator)
+
+-    In startData.txt, designers are able to express the design for a single scenario. Instructions for creating a scenario are included [here](/data/startDataInstructions.md).
 
 ### [F2.b] Within the main programming language used for the rest of your game, you should implement and use a domain-specific language for defining your different types of plants and the unique growth rules that apply to each.
-
 
 ### [F2.c] Change either your project's primary programming language or your primary user interface library/engine/framework. As more of your design is expressed in DSLs, your design becomes increasingly insulated from changes to your primarily programming language or engine. Using your earlier implementation as a reference, it becomes more realistic that you'd be able to leverage generative AI for the large but mostly mindless translations from one language or engine to another.
 
