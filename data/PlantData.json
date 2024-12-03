@@ -1,48 +1,53 @@
 {
-	"NumPlants":3,
-	"Template": {
-		"plantName": "",
-		"id": 0,
-		"growthRate": 0,
-		"growthCap": 0,
-		"displayCharacters": [],
-		"adjacencyFriends": [],
-		"reward": []
-	},
-	"-1": {
-		"plantName": "empty",
-		"id": -1,
-		"growthRate": 0,
-		"growthCap": 0,
-		"displayCharacters": [" "],
-		"adjacencyFriends": [],
-		"reward": []
-	},
-	"0": {
-		"plantName": "Wheat",
-		"id": 0,
-		"growthRate": 0.1,
-		"growthCap": 4,
-		"displayCharacters": [".", ",", "v", "w", "W"],
-		"adjacencyFriends": ["Wheat", "Corn"],
-		"reward": [0, "0Seed", "0Seed"]
-	},
-	"1": {
-		"plantName": "Corn",
-		"id": 1,
-		"growthRate": 0.075,
-		"growthCap": 3,
-		"displayCharacters": [".", ",", "c", "C"],
-		"adjacencyFriends": ["Wheat"],
-		"reward": [1, 1, "1Seed"]
-	},
-	"2": {
-		"plantName": "Rice",
-		"id": 2,
-		"growthRate": 0.15,
-		"growthCap": 5,
-		"displayCharacters": [",", "r", "|", "T", "F", "R"],
-		"adjacencyFriends": ["Rice"],
-		"reward": [2, 2, "2Seed", "2Seed"]
-	}
+    "NumPlants": 3,
+    "Template": {
+        "plantName": "",
+        "id": 0,
+        "growthRate": 0,
+        "growthCap": 0,
+        "displayCharacters": [],
+        "adjacencyFriends": [],
+        "reward": [],
+        "growthConditions": "true"
+    },
+    "-1": {
+        "plantName": "empty",
+        "id": -1,
+        "growthRate": 0,
+        "growthCap": 0,
+        "displayCharacters": [" "],
+        "adjacencyFriends": [],
+        "reward": [],
+        "growthConditions": "true"
+    },
+    "0": {
+        "plantName": "Wheat",
+        "id": 0,
+        "growthRate": 0.1,
+        "growthCap": 4,
+        "displayCharacters": [".", ",", "v", "w", "W"],
+        "adjacencyFriends": ["Wheat", "Corn"],
+        "reward": [0, "0Seed", "0Seed"],
+        "growthConditions": "context.soilMoisture > 50 && context.neighboringPlants.includes('Corn')"
+    },
+    "1": {
+        "plantName": "Corn",
+        "id": 1,
+        "growthRate": 0.075,
+        "growthCap": 3,
+        "displayCharacters": [".", ",", "c", "C"],
+        "adjacencyFriends": ["Wheat"],
+        "reward": [1, 1, "1Seed"],
+        "growthConditions": "context.temperature > 20 && context.soilMoisture < 80"
+    },
+    "2": {
+        "plantName": "Rice",
+        "id": 2,
+        "growthRate": 0.15,
+        "growthCap": 5,
+        "displayCharacters": [",", "r", "|", "T", "F", "R"],
+        "adjacencyFriends": ["Rice"],
+        "reward": [2, 2, "2Seed", "2Seed"],
+        "growthConditions": "context.soilMoisture > 70 && context.neighboringPlants.every(p => p === 'Rice')"
+    }
 }
