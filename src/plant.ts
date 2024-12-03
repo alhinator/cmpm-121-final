@@ -143,7 +143,7 @@ class PlantDSL {
 	/**
 	 * Get the display character (emoji) for this plant.
 	 */
-	public static displayCharacter(id: number, growth: number): string {
+	public static displayCharacter(id: number, _growth: number): string {
 	  return PLANTS[id]?.emoji || MT_TILE;
 	}
   
