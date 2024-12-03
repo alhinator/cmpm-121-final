@@ -1,5 +1,8 @@
 // vite.config.js
-export default {
+import { defineConfig } from "vite";
+
+
+export default defineConfig({
     // config options
-    base: "/"
-  }
+    base: "alhinator.github.io/cmpm-121-final"
+});
