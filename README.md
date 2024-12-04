@@ -184,8 +184,12 @@ The player can affect the tile vertically below them with the following operatio
 
 (alhinator)
 
--    Our teams plans have different slightly in the sense that we are now focusing more on achieving requirements than adhering to a specific visual form. Our roles are generally the same, and we've settled into patterns on which responsibilities we tend towards. However, I have seen that all three of us have started slacking with our code documentation.
+-    Our team's plans have different slightly in the sense that we are now focusing more on achieving requirements than adhering to a specific visual form. Our roles are generally the same, and we've settled into patterns on which responsibilities we tend towards. However, I have seen that all three of us have started slacking with our code documentation.
 
 (Ben Hess)
 
 -    Our team's plans have remained mostly the same since the begining but our roles have definitly become more well defined. I have focused a lot of my efforts on the save/load system since that has required a lot of fundamental changes in how the game works. Those major changes changed the way our project works and the way we think about the structure of the code how it processes the state of the game, but the game was able to remain pretty much the same from a player perspective.
+
+(Hunter Tran)
+
+-    Our team's plans have veered significant from our initial creative goals to design a game fitting a specific visual theme we had in mind, and we have diverted our focus more towards addressing the project spec requirements. Recently I have put a lot of my focus into restructuring the code in necessary refactors in order to implement the internal DSL requirements for the plant and growth data within the game, but I recognize that I need to be a lot more disciplined with more frequent code documentation and descriptive code comments.
