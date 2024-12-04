@@ -170,6 +170,10 @@ The player can affect the tile vertically below them with the following operatio
 
 ### Internal DSL for Plants and Growth Conditions
 
+(Hunter Tran)
+
+-    In plant.ts an internal DSL for the plants and growth conditions has been defined called PlantDSL, that follows the strucure covered in lecture and in the slides on Internal & External DSLs. The plant definitions are all defined within a singular array-type const variable called "allPlantDefinitions".
+
 ### Switch to Alternate Platform
 
 (Ben Hess)
