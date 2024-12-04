@@ -22,6 +22,12 @@ export default defineConfig({
                     {
                         src: "128.png",
                         sizes: '128x128',
+                        type: 'image/png',
+                        purpose: 'any'
+                    },
+                    {
+                        src: "144.png",
+                        sizes: '144x144',
                         type: 'image/png'
                     },
                     {
