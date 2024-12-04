@@ -6,7 +6,7 @@ import StateManager, { floatSize } from "./save";
  * @class Represents the player character in the game.
  */
 export default class Player {
-	private static readonly avatarPath: string = "./public/playerAvatar.png";
+	private static readonly avatarPath: string = "./assets/playerAvatar.png";
 	
 	private avatar?: Phaser.GameObjects.Sprite;
 
