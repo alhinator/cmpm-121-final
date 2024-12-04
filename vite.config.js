@@ -4,5 +4,8 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
     // config options
-    base: "/cmpm-121-final/"
+    base: "/cmpm-121-final/",
+    build:{
+        outDir:"./dist"
+    }
 });

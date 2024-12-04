@@ -1,12 +1,12 @@
 import Board from "./board";
 import Plant, { NO_PLANT } from "./plant";
 import StateManager, { floatSize } from "./save";
+import avatarPath from "./assets/playerAvatar.png";
 
 /**
  * @class Represents the player character in the game.
  */
 export default class Player {
-	private static readonly avatarPath: string = "./assets/playerAvatar.png";
 	
 	private avatar?: Phaser.GameObjects.Sprite;
 
@@ -154,7 +154,7 @@ export default class Player {
 	 * @param scene The scene to preload the avatar in.
 	 */
 	public preload(scene: Phaser.Scene) {
-		scene.load.image("avatar", Player.avatarPath);
+		scene.load.image("avatar", avatarPath);
 	}
 
 	/**
