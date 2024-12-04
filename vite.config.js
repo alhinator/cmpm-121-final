@@ -20,8 +20,8 @@ export default defineConfig({
                 theme_color: '#094e67',
                 icons: [
                     {
-                        src: "192.png",
-                        sizes: '192x192',
+                        src: "128.png",
+                        sizes: '128x128',
                         type: 'image/png'
                     },
                     {
