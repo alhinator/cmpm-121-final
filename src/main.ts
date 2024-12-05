@@ -8,7 +8,7 @@ import Phaser from "phaser";
 /**
  * @constant APP_NAME The name of the application displayed in the title and header.
  */
-const APP_NAME = "Final Game";
+const APP_NAME = "121Farm";
 
 /**
  * @constant TILE_SIZE The size of each tile in the grid.

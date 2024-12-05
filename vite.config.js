@@ -14,7 +14,7 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             manifest: {
-                name: '121 Farming Game',
+                name: '121Farm',
                 short_name: '121Farm',
                 description: 'cmpm 121 final project',
                 theme_color: '#094e67',
