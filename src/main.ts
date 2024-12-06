@@ -3,7 +3,7 @@ import Player from "./player.ts";
 import Time from "./time.ts";
 import StateManager from "./save.ts";
 import Phaser from "phaser";
-
+import { getAllLanguageCodes, getLanguageCode, getLanguageName, languageIsRightToLeft, setLanguageCode, translation } from "./i18n.ts";
 
 /**
  * @constant APP_NAME The name of the application displayed in the title and header.
@@ -23,6 +23,7 @@ class MainScene extends Phaser.Scene {
 	
 	inventory?: HTMLParagraphElement;
 	win?: HTMLHeadingElement;
+	uiRoot?: HTMLDivElement;
 
 	refreshSaveUI(container: HTMLDivElement) {
 		container.innerHTML = ""; // Clear the container
@@ -31,31 +32,74 @@ class MainScene extends Phaser.Scene {
 		let slots = this.StateMGR.getSlots();
 		slots.forEach((slot) => {
 			const btn = document.createElement("button");
-			btn.style.display = "block";
 			if(slot == this.StateMGR.getCurrentSlotId()) {
-				btn.innerHTML = "Save #" + slot;
+				btn.innerHTML = translation("save_slot", slot);
 				btn.addEventListener("click", () => {
 					this.StateMGR.save();
 					this.refreshSaveUI(container);
 				});
 			} else {
-				btn.innerHTML = "Load #" + slot;
+				btn.innerHTML = translation("load_slot", slot);
 				btn.addEventListener("click", () => {
 					this.StateMGR.loadFrom(slot);
 					this.refreshSaveUI(container);
 				});
 			}
 			container.append(btn);
+			container.append(document.createElement("br"));
 		});
 
 		const saveBtn = document.createElement("button");
-		saveBtn.style.display = "block";
-		saveBtn.innerHTML = "New Save";
+		saveBtn.innerHTML = translation("new_save");
 		saveBtn.addEventListener("click", () => {
 			this.StateMGR.newSave();
 			this.refreshSaveUI(container);
 		});
 		container.append(saveBtn);
+	}
+
+	addLanguageUI() {
+		let languageSelect = document.createElement("select");
+		let languageCodes = getAllLanguageCodes();
+		languageCodes.forEach((code) => {
+			let languageOption = document.createElement("option");
+			languageOption.innerText = getLanguageName(code);
+			languageOption.value = code;
+			if(code == getLanguageCode()) {
+				languageOption.selected = true;
+			}
+			languageSelect.append(languageOption);
+		});
+
+		languageSelect.addEventListener("change", () => {
+			setLanguageCode(languageSelect.value);
+			this.createUI();
+		});
+		this.uiRoot!.append(document.createTextNode(translation("language_label") + ":"));
+		this.uiRoot!.append(languageSelect);
+	}
+
+	createUI() {
+		this.uiRoot!.innerHTML = ""; // Clear UI
+		this.uiRoot!.style.textAlign = languageIsRightToLeft() ? "right" : "left";
+
+		Time.initialize(this.uiRoot!, this.board, this.StateMGR);
+
+		// MESSY CODE: REFACTOR LATER
+		//create and append the player inventory:
+		this.inventory = document.createElement("p");
+		this.inventory.innerHTML = translation("inventory_label") + ": " + translation("inventory_empty");
+		this.uiRoot!.appendChild(this.inventory);
+
+		// create and append the win text
+		this.win = document.createElement("h1");
+		this.win.innerText = "";
+		this.uiRoot!.appendChild(this.win);
+
+		let saveContainer = document.createElement("div");
+		this.uiRoot!.append(saveContainer);
+		this.refreshSaveUI(saveContainer);
+		this.addLanguageUI();
 	}
 
 	preload() {
@@ -66,44 +110,32 @@ class MainScene extends Phaser.Scene {
 		this.board.create(this);
 		this.player.create(this);
 
-		let uiRoot = document.createElement("div");
-		document.body.append(uiRoot);
-
-		Time.initialize(uiRoot, this.board, this.StateMGR);
-
 		if(this.StateMGR.hasAutosave()) {
 			let ans: string | null = null;
 			while(ans == null) {
-				ans = prompt("Would you like to continue where you left off? [Y/N]");
+				ans = prompt(translation("autosave_load_prompt"));
 			}
 			if(ans.toLowerCase().trimStart().charAt(0) == "y") {
 				this.StateMGR.loadAutosave();
 			}
 		}
 
-		// MESSY CODE: REFACTOR LATER
-		//create and append the player inventory:
-		this.inventory = document.createElement("p");
-		this.inventory.innerHTML = "Inventory: Empty";
-		uiRoot.appendChild(this.inventory);
-
-		// create and append the win text
-		this.win = document.createElement("h1");
-		this.win.innerText = "";
-		uiRoot.appendChild(this.win);
-
-		let saveContainer = document.createElement("div");
-		uiRoot.append(saveContainer);
-		this.refreshSaveUI(saveContainer);
+		this.uiRoot = document.createElement("div");
+		this.uiRoot.style.maxWidth = "480px";
+		document.body.append(this.uiRoot);
+		this.createUI();
 	}
 
 	update(): void {
 		this.board.updateSprites();
 		this.player.updateSprite();
 
-		this.inventory!.innerHTML = `Inventory:<br>` + this.player.requestInventoryContents(); //Request inventory display string.
+		//Request inventory display string.
+		this.inventory!.innerHTML = translation("inventory") + `:<br>`
+			+ this.player.requestInventoryContents();
+
 		if (this.player.checkWinCon()) {
-			this.win!.innerText = "You won!";
+			this.win!.innerText = translation("win");
 		}
 	}
 }

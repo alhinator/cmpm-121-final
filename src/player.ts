@@ -2,6 +2,7 @@ import Board from "./board";
 import Plant, { NO_PLANT } from "./plant";
 import StateManager, { floatSize } from "./save";
 import avatarPath from "./assets/playerAvatar.png";
+import { translation } from "./i18n";
 
 /**
  * @class Represents the player character in the game.
@@ -301,14 +302,14 @@ export default class Player {
 		}
 	}
 	public requestInventoryContents(): string {
-		let retVal = `Seeds: <br>`;
+		let retVal = translation("inventory_seeds") + `: <br>`;
 		const tmpSeeds = this.seeds;
 		tmpSeeds.forEach((val, key) => {
-			retVal += `&ensp;${Plant.name(key)}: ${val}<br>`;
+			retVal += `&ensp;${Plant.displayName(key)}: ${val}<br>`;
 		});
-		retVal += "Crops:<br>";
+		retVal += translation("inventory_crops") + ":<br>";
 		this.crops.forEach((val, key) => {
-			retVal += `&ensp;${Plant.name(key)}: ${val}<br>`;
+			retVal += `&ensp;${Plant.displayName(key)}: ${val}<br>`;
 		});
 
 		return retVal;

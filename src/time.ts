@@ -1,4 +1,5 @@
 import Board from "./board";
+import { translation } from "./i18n";
 import StateManager from "./save";
 
 /**
@@ -27,12 +28,12 @@ export default class Time {
 
         // Create and append the turn header
         this.header = document.createElement("h1");
-        this.header.innerHTML = "TURN: " + this.turn.toString();
+        this.header.innerHTML = translation("turn_label") + ": " + this.turn.toString();
         app.append(this.header);
 
         // Create and append the turn button
         const turnButton = document.createElement("button");
-        turnButton.innerHTML = "Next Turn";
+        turnButton.innerHTML = translation("next_turn");
         app.append(turnButton);
 
         // Attach event listener to increment the turn
@@ -43,12 +44,12 @@ export default class Time {
 
         // Create and append the undo button
         this.undoButton = document.createElement("button");
-        this.undoButton.innerHTML = "Undo";
+        this.undoButton.innerHTML = translation("undo");
         app.append(this.undoButton);
 
         // Create and append the redo button
         this.redoButton = document.createElement("button");
-        this.redoButton.innerHTML = "Redo";
+        this.redoButton.innerHTML = translation("redo");
         app.append(this.redoButton);
 
         // Attach event listener to undo
@@ -73,7 +74,7 @@ export default class Time {
 
         // Update the turn label
         if (this.header) {
-            this.header.innerHTML = "TURN: " + this.stateMGR.turn;
+            this.header.innerHTML = translation("turn_label") + ": " + this.stateMGR.turn;
         }
     }
 

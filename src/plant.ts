@@ -1,3 +1,5 @@
+import { translation } from "./i18n";
+
 /**
  * @class PlantDSL provides a fluent interface for defining plant behaviors.
  */
@@ -51,36 +53,36 @@ function plantCompiler(plantDefinition: (dsl: PlantDSL) => void): Record<string,
  */
 const allPlantDefinitions = [
     function wheat($: PlantDSL) {
-        $.name("Wheat");
+        $.name("wheat");
         $.sprites(["🌱", "🌿", "🌾", "🌾", "🌾"]); // Sprites for each growth stage
         $.growthRate(0.1);
         $.growthCap(4);
         $.growsWhen(({ soilMoisture, neighbors }: any) =>
             soilMoisture >= 0.5 && neighbors.includes("Corn")
         );
-        $.adjacencyFriends(["Wheat", "Corn"]);
+        $.adjacencyFriends(["wheat", "corn"]);
         $.reward(["0Seed", "0Seed"]);
     },
     function corn($: PlantDSL) {
-        $.name("Corn");
+        $.name("corn");
         $.sprites(["🌱", "🌽", "🌽", "🌽"]); // Sprites for each growth stage
         $.growthRate(0.075);
         $.growthCap(3);
         $.growsWhen(({ temperature, soilMoisture }: any) =>
             temperature > 20 && soilMoisture >= 0.3
         );
-        $.adjacencyFriends(["Wheat"]);
+        $.adjacencyFriends(["wheat"]);
         $.reward(["1Seed"]);
     },
     function rice($: PlantDSL) {
-        $.name("Rice");
+        $.name("rice");
         $.sprites(["🌱", "🌾", "🍚", "🍚", "🍚", "🍚"]); // Sprites for each growth stage
         $.growthRate(0.15);
         $.growthCap(5);
         $.growsWhen(({ soilMoisture, neighbors }: any) =>
-            soilMoisture >= 0.8 && neighbors.every((p: string) => p === "Rice")
+            soilMoisture >= 0.8 && neighbors.every((p: string) => p === "rice")
         );
-        $.adjacencyFriends(["Rice"]);
+        $.adjacencyFriends(["rice"]);
         $.reward(["2Seed", "2Seed"]);
     },
 ];
@@ -117,6 +119,13 @@ export default class Plant {
      */
     public static name(id: number): string {
         return PLANTS[id]?.name || "Unknown";
+    }
+
+    /**
+     * Gets the localized display name of the plant.
+     */
+    public static displayName(id: number): string {
+        return translation(this.name(id));
     }
 
     /**
