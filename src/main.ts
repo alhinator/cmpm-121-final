@@ -15,12 +15,11 @@ const APP_NAME = "121Farm";
  */
 const TILE_SIZE = 32;
 
-
 class MainScene extends Phaser.Scene {
 	readonly StateMGR: StateManager = new StateManager();
 	readonly board = new Board(StateManager.cols, StateManager.rows, TILE_SIZE, this.StateMGR);
 	readonly player = new Player(this.board, TILE_SIZE, 5, 5, this.StateMGR);
-	
+
 	inventory?: HTMLParagraphElement;
 	win?: HTMLHeadingElement;
 	uiRoot?: HTMLDivElement;
@@ -32,7 +31,7 @@ class MainScene extends Phaser.Scene {
 		let slots = this.StateMGR.getSlots();
 		slots.forEach((slot) => {
 			const btn = document.createElement("button");
-			if(slot == this.StateMGR.getCurrentSlotId()) {
+			if (slot == this.StateMGR.getCurrentSlotId()) {
 				btn.innerHTML = translation("save_slot", slot);
 				btn.addEventListener("click", () => {
 					this.StateMGR.save();
@@ -65,7 +64,7 @@ class MainScene extends Phaser.Scene {
 			let languageOption = document.createElement("option");
 			languageOption.innerText = getLanguageName(code);
 			languageOption.value = code;
-			if(code == getLanguageCode()) {
+			if (code == getLanguageCode()) {
 				languageOption.selected = true;
 			}
 			languageSelect.append(languageOption);
@@ -85,6 +84,8 @@ class MainScene extends Phaser.Scene {
 
 		Time.initialize(this.uiRoot!, this.board, this.StateMGR);
 
+		this.createMobileControls();
+
 		// MESSY CODE: REFACTOR LATER
 		//create and append the player inventory:
 		this.inventory = document.createElement("p");
@@ -101,6 +102,37 @@ class MainScene extends Phaser.Scene {
 		this.refreshSaveUI(saveContainer);
 		this.addLanguageUI();
 	}
+	createMobileControls() {
+		// Create and append the mobile controls.
+		const playerControls: Map<string, HTMLButtonElement> = new Map<string, HTMLButtonElement>([
+			["change seed", document.createElement("button")],
+			["sow", document.createElement("button")],
+			["reap", document.createElement("button")],
+			["right", document.createElement("button")],
+			["left", document.createElement("button")],
+			["down", document.createElement("button")],
+			["up", document.createElement("button")],
+		]);
+		const directionals: Map<string, string> = new Map<string, string>([
+			["up", "w"],
+			["down", "s"],
+			["right", "d"],
+			["left", "a"],
+			["reap", "z"],
+			["sow", "x"],
+			["change seed", "c"],
+		]);
+		playerControls.forEach((value, key) => {
+			this.uiRoot!.prepend(value);
+			value.classList.add("controlButton");
+			value.innerText = key;
+			value.addEventListener("click", () => {
+				window.dispatchEvent(new KeyboardEvent("keydown", { key: directionals.get(key) }));
+				window.dispatchEvent(new KeyboardEvent("keyup", { key: directionals.get(key) }));
+			});
+		});
+		this.uiRoot!.appendChild(document.createElement("br"));
+	}
 
 	preload() {
 		this.player.preload(this);
@@ -110,12 +142,12 @@ class MainScene extends Phaser.Scene {
 		this.board.create(this);
 		this.player.create(this);
 
-		if(this.StateMGR.hasAutosave()) {
+		if (this.StateMGR.hasAutosave()) {
 			let ans: string | null = null;
-			while(ans == null) {
+			while (ans == null) {
 				ans = prompt(translation("autosave_load_prompt"));
 			}
-			if(ans.toLowerCase().trimStart().charAt(0) == "y") {
+			if (ans.toLowerCase().trimStart().charAt(0) == "y") {
 				this.StateMGR.loadAutosave();
 			}
 		}
@@ -131,8 +163,7 @@ class MainScene extends Phaser.Scene {
 		this.player.updateSprite();
 
 		//Request inventory display string.
-		this.inventory!.innerHTML = translation("inventory") + `:<br>`
-			+ this.player.requestInventoryContents();
+		this.inventory!.innerHTML = translation("inventory") + `:<br>` + this.player.requestInventoryContents();
 
 		if (this.player.checkWinCon()) {
 			this.win!.innerText = translation("win");
@@ -151,9 +182,9 @@ const main = () => {
 	new Phaser.Game({
 		width: TILE_SIZE * StateManager.cols,
 		height: TILE_SIZE * StateManager.rows,
-		scene: MainScene
+		scene: MainScene,
 	});
-}
+};
 
 // Start the game
 main();

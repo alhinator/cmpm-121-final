@@ -193,3 +193,38 @@ The player can affect the tile vertically below them with the following operatio
 (Hunter Tran)
 
 -    Our team's plans have veered significant from our initial creative goals to design a game fitting a specific visual theme we had in mind, and we have diverted our focus more towards addressing the project spec requirements. Recently I have put a lot of my focus into restructuring the code in necessary refactors in order to implement the internal DSL requirements for the plant and growth data within the game, but I recognize that I need to be a lot more disciplined with more frequent code documentation and descriptive code comments.
+
+# F3 Devlog 6 Dec 2024
+
+## How we satisfied the software requirements
+
+### F0 - F2
+
+-    These requirements were satisfied in the same way as last week.
+-    Plants now have different sprites for when they are grown/not grown.
+
+### Internationalization
+
+### Localization
+
+### Mobile Installation
+
+(alhinator)
+
+-    Our game is available as a progressive web app for download via the browser on both desktop and mobile platforms.
+-    To accomplish this, we simply used the Vite-plugin-PWA plugin, which allowed us to generate a manifest file in our distributed build.
+-    Nothing major needed to be changed, and all we had to do was follow the Vite-plugin-PWA documentation.
+
+### Mobile Play (Offline)
+
+(alhinator)
+
+-    To allow our game to play nicer on mobile, we had to add in movement buttons similar to the buttons for D3.
+
+## Reflection
+
+Looking back on how you achieved the new F3 requirements, how has your team’s plan changed? Did you reconsider any of the choices you previously described for Tools and Materials or your Roles? Has your game design evolved now that you've started to think about giving the player more feedback? It would be very suspicious if you didn’t need to change anything. There’s learning value in you documenting how your team’s thinking has changed over time.
+
+(alhinator)
+
+-    We did have to add some new tools. On my end, I added in the Vite plugin for formatting our game as a PWA. Our game design has evolved slightly, but if anything, the feedback specifically for plant growth has regressed, since we switched from 'plants have varying stages of growth' to 'plants are grown or not grown'. We've also added a lot of buttons without too much mind for how they look or where they end up.
