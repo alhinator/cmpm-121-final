@@ -230,6 +230,10 @@ The player can affect the tile vertically below them with the following operatio
 
 -    To allow our game to play nicer on mobile, we had to add in movement buttons similar to the buttons for D3.
 
+(Hunter Tran)
+
+-    To provide the player with more feedback and context on the current game state regarding the plants' growth stages, we implemented different sprites for each growth stage of the plants.
+
 ## Reflection
 
 Looking back on how you achieved the new F3 requirements, how has your team’s plan changed? Did you reconsider any of the choices you previously described for Tools and Materials or your Roles? Has your game design evolved now that you've started to think about giving the player more feedback? It would be very suspicious if you didn’t need to change anything. There’s learning value in you documenting how your team’s thinking has changed over time.
@@ -241,3 +245,7 @@ Looking back on how you achieved the new F3 requirements, how has your team’s 
 (Ben Hess)
 
 -   Our code required some significant changes in order to meet the F3 requirements. The main feature I worked on was internationalization and localization, which required that all UI strings be changed to keys and the entire UI be able to refresh. While the recent changes have allowed us to meet the project requirments, they have also changed the structure of our code in unanticipated ways which has led to some inconsistency and disorganization.
+
+(Hunter Tran)
+
+-   Due to the nature of the F3 requirements I believe that our project's code structure required major revisions in order to meet the necessary requirements. I do believe that the changes made to the project required our team's plan to design an ASCII style game to change, and that I had to reconsider my choices for the tools and materials on my role. Now that I have thought more about giving the player more feedback through the changes we made to the a ssignment, I believe my game design has evolved a lot in terms of flexibility.
