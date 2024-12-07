@@ -205,7 +205,16 @@ The player can affect the tile vertically below them with the following operatio
 
 ### Internationalization
 
+(Ben Hess)
+
+-   Our game now supports multiple languages by mapping a set of key strings to UI strings for each language. The language objects also store the language's full name (for use in the UI), and weather or not the language is right-to-left.
+-   The game's UI now includes a drop down menu which allows the user to select a language. When a language is selected, it is stored in local storage and the game's UI is re-created in the new language.
+
 ### Localization
+
+(Ben Hess)
+
+- Our game supports three different languages: English, Arabic (written right-to-left), and Simplified Chinese (iconographic)
 
 ### Mobile Installation
 
@@ -228,3 +237,7 @@ Looking back on how you achieved the new F3 requirements, how has your team’s 
 (alhinator)
 
 -    We did have to add some new tools. On my end, I added in the Vite plugin for formatting our game as a PWA. Our game design has evolved slightly, but if anything, the feedback specifically for plant growth has regressed, since we switched from 'plants have varying stages of growth' to 'plants are grown or not grown'. We've also added a lot of buttons without too much mind for how they look or where they end up.
+
+(Ben Hess)
+
+-   Our code required some significant changes in order to meet the F3 requirements. The main feature I worked on was internationalization and localization, which required that all UI strings be changed to keys and the entire UI be able to refresh. While the recent changes have allowed us to meet the project requirments, they have also changed the structure of our code in unanticipated ways which has led to some inconsistency and disorganization.
