@@ -105,22 +105,22 @@ class MainScene extends Phaser.Scene {
 	createMobileControls() {
 		// Create and append the mobile controls.
 		const playerControls: Map<string, HTMLButtonElement> = new Map<string, HTMLButtonElement>([
-			["change seed", document.createElement("button")],
-			["sow", document.createElement("button")],
-			["reap", document.createElement("button")],
-			["right", document.createElement("button")],
-			["left", document.createElement("button")],
-			["down", document.createElement("button")],
-			["up", document.createElement("button")],
+			[translation("change_seed_label"), document.createElement("button")],
+			[translation("sow_label"), document.createElement("button")],
+			[translation("reap_label"), document.createElement("button")],
+			[translation("right_label"), document.createElement("button")],
+			[translation("left_label"), document.createElement("button")],
+			[translation("down_label"), document.createElement("button")],
+			[translation("up_label"), document.createElement("button")],
 		]);
 		const directionals: Map<string, string> = new Map<string, string>([
-			["up", "w"],
-			["down", "s"],
-			["right", "d"],
-			["left", "a"],
-			["reap", "z"],
-			["sow", "x"],
-			["change seed", "c"],
+			[translation("up_label"), "w"],
+			[translation("down_label"), "s"],
+			[translation("right_label"), "d"],
+			[translation("left_label"), "a"],
+			[translation("reap_label"), "z"],
+			[translation("sow_label"), "x"],
+			[translation("change_seed_label"), "c"],
 		]);
 		playerControls.forEach((value, key) => {
 			this.uiRoot!.prepend(value);
