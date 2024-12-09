@@ -397,7 +397,7 @@ export default class Board {
 		}
 		const currRate = Plant.baseGrowthRate(tile.plant) * tile.sun * tile.water * this.rateViaAdjacency(tile);
 		let waterUse = 0.5;
-		if (tile.growth < Plant.growthCap(tile.plant) && Math.random() < currRate) {
+		if (tile.growth < Plant.growthCap(tile.plant) && Plant.growsWhen(tile.plant, {soilMoisture:tile.water, temperature:tile.sun, neighbors:this.GetAdjacentPlants(tile)}) && Math.random() < currRate) {
 			tile.growth++;
 			waterUse = 1;
 		}

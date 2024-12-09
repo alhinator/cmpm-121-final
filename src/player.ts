@@ -175,7 +175,7 @@ export default class Player {
 	}
 
 	/**
-	 * Moves the player character by one tile in a specified direction, constrained by the canvas dimensions.
+	 * Moves the player character by a number of tiles in a specified direction, constrained by the canvas dimensions.
 	 * @param deltaX The number of tiles to move in the X direction.
 	 * @param deltaY The number of tiles to move in the Y direction.
 	 */
