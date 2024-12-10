@@ -58,7 +58,7 @@ const allPlantDefinitions = [
         $.growthRate(0.1);
         $.growthCap(4);
         $.growsWhen(({ soilMoisture, neighbors }: any) =>
-            soilMoisture >= 0.5 && neighbors.includes("corn")
+            soilMoisture >= 0.5 && neighbors && neighbors.includes("corn")
         );
         $.adjacencyFriends(["wheat", "corn"]);
         $.reward(["0", "0Seed", "0Seed"]);
