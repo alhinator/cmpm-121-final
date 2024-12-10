@@ -311,7 +311,7 @@ export default class Board {
 		const retVal: string[] = [];
 		const adj = this.GetAdjacentTiles(cell);
 		adj.forEach((tile) => {
-			if (tile.plant) {
+			if (tile.plant != NO_PLANT) {
 				retVal.push(Plant.name(tile.plant));
 			}
 		});
@@ -483,12 +483,8 @@ export default class Board {
 	 */
 	private ConditionChange() {
 		const changesList = this.StateMGR.conditionChange;
-		console.log(changesList);
 		changesList.forEach((line) => {
 			const params = line.split(` `);
-
-			console.log(params);
-
 			switch (params[0]) {
 				case "sun_range":
 					this.sunRange =
