@@ -305,7 +305,9 @@ export default class Player {
 		let retVal = translation("inventory_seeds") + `: <br>`;
 		const tmpSeeds = this.seeds;
 		tmpSeeds.forEach((val, key) => {
+			if(this.currentPlant == key){retVal+=`<strong>`}
 			retVal += `&ensp;${Plant.displayName(key)}: ${val}<br>`;
+			if(this.currentPlant == key){retVal+=`</strong>`}
 		});
 		retVal += translation("inventory_crops") + ":<br>";
 		this.crops.forEach((val, key) => {

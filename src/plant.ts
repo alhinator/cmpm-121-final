@@ -54,36 +54,36 @@ function plantCompiler(plantDefinition: (dsl: PlantDSL) => void): Record<string,
 const allPlantDefinitions = [
     function wheat($: PlantDSL) {
         $.name("wheat");
-        $.sprites(["🌱", "🌿", "🌾", "🌾", "🌾"]);
+        $.sprites(["🌱", "🌱", "🌿", "🌿", "🌾"]);
         $.growthRate(0.1);
         $.growthCap(4);
         $.growsWhen(({ soilMoisture, neighbors }: any) =>
             soilMoisture >= 0.5 && neighbors.includes("corn")
         );
         $.adjacencyFriends(["wheat", "corn"]);
-        $.reward(["0Seed", "0Seed"]);
+        $.reward(["0", "0Seed", "0Seed"]);
     },
     function corn($: PlantDSL) {
         $.name("corn");
-        $.sprites(["🌱", "🌽", "🌽", "🌽"]);
+        $.sprites(["🌱", "🌱", "🍂", "🌽"]);
         $.growthRate(0.075);
         $.growthCap(3);
         $.growsWhen(({ temperature, soilMoisture }: any) =>
             temperature >= 1  && soilMoisture >= 0.3
         );
         $.adjacencyFriends(["wheat"]);
-        $.reward(["1Seed"]);
+        $.reward(["1", "1", "1Seed"]);
     },
     function rice($: PlantDSL) {
         $.name("rice");
-        $.sprites(["🌱", "🌾", "🍚", "🍚", "🍚", "🍚"]);
+        $.sprites(["🌱", "🌱", "🍃", "🍃", "🍃", "🍚"]);
         $.growthRate(0.15);
         $.growthCap(5);
         $.growsWhen(({ soilMoisture, neighbors }: any) =>
             soilMoisture >= 0.8 && neighbors.every((p: string) => p === "rice")
         );
         $.adjacencyFriends(["rice"]);
-        $.reward(["2Seed", "2Seed"]);
+        $.reward(["2", "2Seed", "2Seed"]);
     },
 ];
 
