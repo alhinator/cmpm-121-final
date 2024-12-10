@@ -80,7 +80,7 @@ const allPlantDefinitions = [
         $.growthRate(0.15);
         $.growthCap(5);
         $.growsWhen(({ soilMoisture, neighbors }: any) =>
-            soilMoisture >= 0.8 && neighbors.every((p: string) => p === "rice")
+            soilMoisture >= 0.8 && neighbors && neighbors.every((p: string) => p === "rice")
         );
         $.adjacencyFriends(["rice"]);
         $.reward(["2", "2Seed", "2Seed"]);
