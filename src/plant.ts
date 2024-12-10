@@ -69,7 +69,7 @@ const allPlantDefinitions = [
         $.growthRate(0.075);
         $.growthCap(3);
         $.growsWhen(({ temperature, soilMoisture }: any) =>
-            temperature > 20 && soilMoisture >= 0.3
+            temperature > 0.8 && soilMoisture >= 0.3
         );
         $.adjacencyFriends(["wheat"]);
         $.reward(["1Seed"]);
